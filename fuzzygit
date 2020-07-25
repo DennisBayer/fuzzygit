@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+#   __                           _ _
+#  / _|_   _ _________   _  __ _(_) |_
+# | |_| | | |_  /_  / | | |/ _` | | __|
+# |  _| |_| |/ / / /| |_| | (_| | | |_
+# |_|  \__,_/___/___|\__, |\__, |_|\__|
+#                    |___/ |___/
+#
+# fuzzygit - marry git and fzf
+#
+
+fg_isGitRepo() {
+  git rev-parse HEAD > /dev/null 2>&1
+}
+
+fg_fzf() {
+  #fzf -m --cycle -nth 2..
+  fzf --cycle
+}
+
+fg_switch() {
+  fg_isGitRepo || return 1
+
+  local items="$(git branch -l)"                                     # get branches
+  local sanatize="sed 's/^..//'"                                     # strip the two leading spaces
+  local preview='git log --oneline --graph $sanatize <<< {})'        # get log of branches
+
+  [[ -n "$items" ]] && echo "$items" | fzf --preview="$preview" --print0 | sh -c "$sanatize" | xargs --null -I %branch git switch %branch && return
+  echo "No branches have been found."
+}
+
+bind '"\er": redraw-current-line'
+bind '"\C-g\C-b": "$(fg_switch)\n\e\C-e\er"'
+
+# \e\C-e is the default key binding for shell-expand-line. 
+#   Using shell-expand-line is not ideal as it expands aliases as well, but it's the easiest way to do it.
+# redraw-current-line is required to clear up the prompt when you're not on tmux. 
+#   If you're always on tmux, you can omit the part.
+
+  #local git="git status -sz" # s: short; z: NUL instead LF
+  #local extract="
+  #    sed 's/^.*]  //' |
+  #    sed 's/.* -> //' |
+  #    sed -e 's/^\\\"//' -e 's/\\\"\$//'"
+  #files="$(git)"
+  #[[ -n "$files" ]] 
+
+
+# sed s/^..//
+  # s   - search and replace
+  # /   - start pattern
+  # ^.. - line start and any char two times
+  # /   - end pattern
+  # /   - no replacement was defined before slash -> remove match
