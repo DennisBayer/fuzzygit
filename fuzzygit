@@ -13,9 +13,17 @@ fg_isGitRepo() {
   git rev-parse HEAD > /dev/null 2>&1
 }
 
+fg_echo() {
+  echo "$@" | xargs -r echo
+}
+
 fg_fzf() {
   #fzf -m --cycle -nth 2..
-  fzf --cycle
+  fzf --cycle "$@"
+}
+
+fg_fzf_single() {
+  fzf --cycle +m "$@"
 }
 
 fg_switch() {
@@ -24,9 +32,14 @@ fg_switch() {
   local items="$(git branch -l)"                                     # get branches
   local sanatize="sed 's/^..//'"                                     # strip the two leading spaces
   local preview='git log --oneline --graph $sanatize <<< {})'        # get log of branches
+  local gitout
 
-  [[ -n "$items" ]] && echo "$items" | fzf --preview="$preview" --print0 | sh -c "$sanatize" | xargs --null -I %branch git switch %branch && return
-  echo "No branches have been found."
+  if [[ -n "$items" ]]; then
+    gitout=$(echo "$items" | fg_fzf_single --preview="$preview" --print0 | sh -c "$sanatize" | xargs --null -I %branch git switch %branch) \
+    && fg_echo "$gitout"
+  else
+    echo "No branches have been found."
+  fi
 }
 
 bind '"\er": redraw-current-line'
@@ -52,3 +65,16 @@ bind '"\C-g\C-b": "$(fg_switch)\n\e\C-e\er"'
   # ^.. - line start and any char two times
   # /   - end pattern
   # /   - no replacement was defined before slash -> remove match
+
+## fg_switch
+#echo "$gitout" | xargs -r echo
+#echo "$items" | fzf --preview="$preview" --print0 | sh -c "$sanatize" | xargs --null -I %branch git switch %branch >&1 | xargs -r echo
+
+## fg_add
+# fg_add() {
+#   fg_isGitRepo || return 1
+#   gitPager=$(git config core.pager)
+#   echo $gitPager
+
+#   $(git status -s | fzf -m --cycle --nth 2.. --preview 'git diff --staged -- {-1} | "$gitPager"')
+# }
