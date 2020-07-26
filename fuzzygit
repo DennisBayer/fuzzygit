@@ -52,6 +52,37 @@ fg_switch() {
   fi
 }
 
+fg_add() {
+  fg_isGitRepo || return 1
+
+  # strip the three leading spaces ("?? <file>")
+  local sanatize="sed 's/^...//'"
+  # check if file is untracked; show pager in preview accordingly
+  local preview="
+    item=\$("$sanatize" <<< {})
+    if (git status -s -- "\$item" | grep '^??') &>/dev/null; then
+        # diff with /dev/null for untracked files
+        git diff --no-index -- /dev/null "\$item" | "$fg_var_gitPager"
+    elif (git status -s -- "\$item" | grep '^[M|A]'); then
+        git diff --staged -- "\$item" | "$fg_var_gitPager"
+    else
+        git diff -- "\$item" | "$fg_var_gitPager"
+    fi" 
+  
+  # get parsable status; show preview and limit search to second block
+  local items="$(git status -zu | 
+    fg_fzf --read0 --nth 2..,.. --preview="$preview" |
+    sh -c "$sanatize")"
+
+  # add files if any
+  if [[ -n "$items" ]]; then
+    local gitout=$(echo "$items" | xargs -t -I %itemsToAdd git add -- %itemsToAdd) \
+      && fg_echo "$gitout"
+  else
+    fg_echo "No files have been found."
+  fi
+}
+
 bind '"\er": redraw-current-line'
 bind '"\C-g\C-b": "$(fg_switch)\n\e\C-e\er"'
 
