@@ -9,16 +9,20 @@
 # fuzzygit - marry git and fzf
 #
 
+fg_var_gitPager=$(git config core.pager)
+
 fg_isGitRepo() {
   git rev-parse HEAD > /dev/null 2>&1
 }
 
 fg_echo() {
-  echo "$@" | xargs -r echo
+  if [[ "$#" -ne 0 ]]; then
+    echo "$@" | xargs -r echo
+  fi
 }
 
 fg_fzf() {
-  #fzf -m --cycle -nth 2..
+  # --exact
   fzf --cycle "$@"
 }
 
@@ -29,16 +33,22 @@ fg_fzf_single() {
 fg_switch() {
   fg_isGitRepo || return 1
 
-  local items="$(git branch -l)"                                     # get branches
-  local sanatize="sed 's/^..//'"                                     # strip the two leading spaces
-  local preview='git log --oneline --graph $sanatize <<< {})'        # get log of branches
-  local gitout
-
-  if [[ -n "$items" ]]; then
-    gitout=$(echo "$items" | fg_fzf_single --preview="$preview" --print0 | sh -c "$sanatize" | xargs --null -I %branch git switch %branch) \
+  # strip the two leading spaces ("* <branch>")
+  local sanatize="sed 's/^..//'"
+  # get log of branches
+  local preview="git log --oneline --graph \$("$sanatize" <<< {})"
+  
+  # get branches; single selection;
+  local item="$(git branch -l | 
+    fg_fzf_single --preview="$preview" |
+    sh -c "$sanatize")"
+  
+  # switch to branch if any
+  if [[ -n "$item" ]]; then
+    local gitout=$(echo "$item" | xargs -I %branch git switch %branch) \
     && fg_echo "$gitout"
   else
-    echo "No branches have been found."
+    fg_echo "No branches have been found."
   fi
 }
 
@@ -58,7 +68,11 @@ bind '"\C-g\C-b": "$(fg_switch)\n\e\C-e\er"'
   #files="$(git)"
   #[[ -n "$files" ]] 
 
+# ---
+# --- NOTES 
+# ---
 
+# ---
 # sed s/^..//
   # s   - search and replace
   # /   - start pattern
@@ -69,12 +83,47 @@ bind '"\C-g\C-b": "$(fg_switch)\n\e\C-e\er"'
 ## fg_switch
 #echo "$gitout" | xargs -r echo
 #echo "$items" | fzf --preview="$preview" --print0 | sh -c "$sanatize" | xargs --null -I %branch git switch %branch >&1 | xargs -r echo
+# ---
 
+# ---
 ## fg_add
 # fg_add() {
 #   fg_isGitRepo || return 1
 #   gitPager=$(git config core.pager)
 #   echo $gitPager
-
 #   $(git status -s | fzf -m --cycle --nth 2.. --preview 'git diff --staged -- {-1} | "$gitPager"')
 # }
+# ---
+
+# ---
+  # local sanatizePreview="sed 's/^...//'"                                     # strip the two leading spaces
+  # local sanatizeSelection="sed 's/^...//'"
+# ---
+
+
+# ---
+  # local added=$(git config --get-color color.status.added green)       # get color codes
+  # local changed=$(git config --get-color color.status.changed red)     # get color codes
+  # local unmerged=$(git config --get-color color.status.unmerged red)   # get color codes
+  # local untracked=$(git config --get-color color.status.untracked red) # get color codes
+
+  # #local items="$(git -c color.status=always status -su |
+  #   #grep -F -e "$added" -e "$changed" -e "$unmerged" -e "$untracked" |
+  #   #sed -E 's/^(..[^[:space:]]*)[[:space:]]+(.*)$/[\1]  \2/')"
+  # # local items="$(git -c color.status=always status -su | 
+  # #   sed -E 's/^(..[^[:space:]]*)[[:space:]]+(.*)$/[\1]  \2/' |
+  # #   fg_fzf --preview="$preview" --nth 2..,..)"
+
+  # # local items="$(git -c color.status=always -c status.relativePaths=true status -su |
+  # #   grep -F -e "$changed" -e "$unmerged" -e "$untracked" |
+  # #   sed -E 's/^(..[^[:space:]]*)[[:space:]]+(.*)$/[\1]  \2/'|
+  # #   fg_fzf --preview="$preview" --nth 2..,..)"
+# ---
+
+# ---
+##local gitout=$(echo "$items" | fg_fzf --preview="$preview" --print0 | sh -c "$sanatize" | xargs -t --null -I %filesToAdd git add %filesToAdd) \
+##&& fg_echo gitout
+#local gitout=$(echo "$items" | fg_fzf --preview="$preview" --nth 2..,.. | xargs -t --null sh -c "$sanatizeSelection" | xargs -t --null -I %filesToAdd git add %filesToAdd) \
+#local gitout=$(echo "$items" | fg_fzf --preview="$preview" --nth 2..,.. | xargs -t --null sh -c "$sanatizeSelection" | xargs -t --null -I %filesToAdd echo %filesToAdd) \
+#&& fg_echo "$gitout"
+# ---
