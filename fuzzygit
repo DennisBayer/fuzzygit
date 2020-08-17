@@ -75,7 +75,7 @@ fg_add() {
         git diff --staged -- "\$item" | "$fg_var_gitPager"
     else
         git diff -- "\$item" | "$fg_var_gitPager"
-    fi" 
+    fi"
   
   # get parsable status; show preview and limit search to second block
   local items="$(git status -zu |
@@ -91,6 +91,24 @@ fg_add() {
     fg_echo "No files have been found."
   fi
 }
+
+fg_log() {
+  fg_isGitRepo || return 1
+
+  # show the highlighted commit with "--stats" option
+  local preview="git log -1 --stat {1}"
+
+  # show a short git log
+  local item="$(git log --oneline | fg_fzf_single --preview="$preview")"
+
+  # show the commit log between the selected commit and the current head
+  if [[ -n "$item" ]]; then
+    echo "$item" | awk '{print $1}' | xargs -I %commitHash% git log --stat %commitHash%^..HEAD
+  else
+    fg_echo "No commit has been selected."
+  fi
+}
+
 
 bind '"\er": redraw-current-line'
 bind '"\C-g\C-b": "$(fg_switch)\n\e\C-e\er"'
@@ -111,6 +129,23 @@ bind '"\C-g\C-b": "$(fg_switch)\n\e\C-e\er"'
 # ---
 # --- NOTES 
 # ---
+
+# ---
+# fzf field index expresions
+#
+# -- {+<>} - all selections when multiple lines are selected
+# -- {s}  - preserve the whitespace
+# -- {q}  - the current query string
+# -- {n}  - zero-based ordinal index of the line
+# -- {f}  - the path of a temporary file that holds the evaluated list
+# 1      The 1st field
+# 2      The 2nd field
+# -1     The last field
+# -2     The 2nd to last field
+# 3..5   From the 3rd field to the 5th field
+# 2..    From the 2nd field to the last field
+# ..-3   From the 1st field to the 3rd to the last field
+# ..     All the fields
 
 # ---
 # sed s/^..//
