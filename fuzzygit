@@ -9,6 +9,10 @@
 # fuzzygit - marry git and fzf
 #
 
+# Fuzzygit config
+fg_var_enableEcho=true
+
+# Git config
 fg_var_gitPager=$(git config core.pager)
 
 fg_isGitRepo() {
@@ -16,6 +20,8 @@ fg_isGitRepo() {
 }
 
 fg_echo() {
+  [ "$fg_var_enableEcho" != true ] && return 0;
+
   if [[ "$#" -ne 0 ]]; then
     echo "$@" | xargs -r echo
   fi
@@ -39,7 +45,7 @@ fg_switch() {
   local preview="git log --oneline --graph \$("$sanatize" <<< {})"
   
   # get branches; single selection;
-  local item="$(git branch -l | 
+  local item="$(git branch -l |
     fg_fzf_single --preview="$preview" |
     sh -c "$sanatize")"
   
@@ -52,6 +58,8 @@ fg_switch() {
   fi
 }
 
+# git st -su | xargs --null -I % echo % | sed 's/^...//' | sed 's/.*.-> //'
+# git -c color.status=always status -su | fg_fzf --ansi | sed 's/^...//' | sed 's/.*.-> //'
 fg_add() {
   fg_isGitRepo || return 1
 
@@ -70,13 +78,14 @@ fg_add() {
     fi" 
   
   # get parsable status; show preview and limit search to second block
-  local items="$(git status -zu | 
+  local items="$(git status -zu |
     fg_fzf --read0 --nth 2..,.. --preview="$preview" |
     sh -c "$sanatize")"
 
   # add files if any
   if [[ -n "$items" ]]; then
-    local gitout=$(echo "$items" | xargs -t -I %itemsToAdd git add -- %itemsToAdd) \
+    # xargs debug (-t): local gitout=$(echo "$items" | xargs -t -I %itemsToAdd git add -- %itemsToAdd) \
+    local gitout=$(echo "$items" | xargs -I %itemsToAdd git add -- %itemsToAdd) \
       && fg_echo "$gitout"
   else
     fg_echo "No files have been found."
