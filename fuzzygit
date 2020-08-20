@@ -109,9 +109,26 @@ fg_log() {
   fi
 }
 
+fg_hash() {
+  fg_isGitRepo || return 1
+
+  # show the highlighted commit with "--stats" option
+  local preview="git log -1 --stat {1}"
+
+  # show a short git log
+  local items="$(git log --oneline | fg_fzf --preview="$preview")"
+
+  # pass the selected commit hashes to the argument, e.g. "fg_hash git show"
+  if [[ -n "$items" ]]; then
+    echo "$items" | awk '{print $1}' | xargs -I %commitHash% "$@" %commitHash%
+  else
+    fg_echo "No commit has been selected."
+  fi
+}
 
 bind '"\er": redraw-current-line'
 bind '"\C-g\C-b": "$(fg_switch)\n\e\C-e\er"'
+bind '"\C-g\C-h": "$(fg_hash)\n\e\C-e\er"'
 
 # \e\C-e is the default key binding for shell-expand-line. 
 #   Using shell-expand-line is not ideal as it expands aliases as well, but it's the easiest way to do it.
