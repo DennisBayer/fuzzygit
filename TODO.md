@@ -29,7 +29,16 @@
 
 * [ ] Add a function to checkout a remote branch.
 
+### cherry-pick
+
+* [ ] Add a function to cherry-pick commits.
+
+### merge
+
+* [ ] Add a function to merge branches.
+
 ## Misc
 
+* [ ] Cleanup var declaration (remove new lines, use semi-colon).
 * [ ] Add a message if not in a git repo?
 * [ ] Add a message if nothing was selected in fzf?
