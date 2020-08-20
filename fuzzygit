@@ -119,6 +119,33 @@ fg_unstage() {
   fi
 }
 
+fg_restore() {
+  fg_isGitRepo || return 1
+
+  # strip the three leading charactes ("?? <file>")
+  local sanatize="sed 's/^...//'"
+
+  # show diff in pager
+  local preview="
+    item=\$("$sanatize" <<< {})
+    git diff -- \""\$item"\" | "$fg_var_gitPager""
+
+  # get parsable status; show preview and limit search to second block
+  local items="$(git status -s -uno | 
+    grep "^ M" |
+    fg_fzf --nth 2..,.. --preview="$preview" |
+    sh -c "$sanatize")"
+
+  # add files if any
+  if [[ -n "$items" ]]; then
+    #  restore selected files from working directory; add single quote to escape whitespaces in file names
+    local gitout=$(echo "$items" | xargs -t -I %itemsToRestore git restore -- '%itemsToRestore') \
+      && fg_echo "$gitout"
+  else
+    fg_echo "No files have been selected."
+  fi
+}
+
 fg_log() {
   fg_isGitRepo || return 1
 
