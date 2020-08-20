@@ -15,6 +15,10 @@ fg_var_enableEcho=true
 # Git config
 fg_var_gitPager=$(git config core.pager)
 
+# -----------------------------------------------------------------------------
+# Utility functions
+# -----------------------------------------------------------------------------
+
 fg_isGitRepo() {
   git rev-parse HEAD > /dev/null 2>&1
 }
@@ -27,6 +31,10 @@ fg_echo() {
   fi
 }
 
+# -----------------------------------------------------------------------------
+# fzf functions
+# -----------------------------------------------------------------------------
+
 fg_fzf() {
   # --exact
   fzf --cycle "$@"
@@ -36,6 +44,13 @@ fg_fzf_single() {
   fzf --cycle +m "$@"
 }
 
+# -----------------------------------------------------------------------------
+# fuzzygit functions
+# -----------------------------------------------------------------------------
+
+#
+# Shows a list of local branches and switches to the selected one.
+#
 fg_switch() {
   fg_isGitRepo || return 1
 
@@ -58,8 +73,9 @@ fg_switch() {
   fi
 }
 
-# git st -su | xargs --null -I % echo % | sed 's/^...//' | sed 's/.*.-> //'
-# git -c color.status=always status -su | fg_fzf --ansi | sed 's/^...//' | sed 's/.*.-> //'
+#
+# Shows a list of addable files and adds them to the staging area.
+#
 fg_add() {
   fg_isGitRepo || return 1
 
@@ -92,6 +108,10 @@ fg_add() {
   fi
 }
 
+#
+# Shows the list of files which are in the staging area (aka added files)
+# and puts them back into the working area.
+#
 fg_unstage() {
   fg_isGitRepo || return 1
 
@@ -119,6 +139,10 @@ fg_unstage() {
   fi
 }
 
+#
+# Show the list of files in the working area (aka modified files)
+# and restores the version from the local repository.
+#
 fg_restore() {
   fg_isGitRepo || return 1
 
@@ -146,6 +170,9 @@ fg_restore() {
   fi
 }
 
+#
+# Shows the commit history and shows the log between the selected one and the HEAD.
+#
 fg_log() {
   fg_isGitRepo || return 1
 
@@ -163,6 +190,10 @@ fg_log() {
   fi
 }
 
+#
+# Shows the commit history and passes the hashes of the selected entries
+# to the command which was given as an argument.
+#
 fg_hash() {
   fg_isGitRepo || return 1
 
@@ -239,6 +270,9 @@ bind '"\C-g\C-h": "$(fg_hash)\n\e\C-e\er"'
 #   echo $gitPager
 #   $(git status -s | fzf -m --cycle --nth 2.. --preview 'git diff --staged -- {-1} | "$gitPager"')
 # }
+
+# git st -su | xargs --null -I % echo % | sed 's/^...//' | sed 's/.*.-> //'
+# git -c color.status=always status -su | fg_fzf --ansi | sed 's/^...//' | sed 's/.*.-> //'
 # ---
 
 # ---
