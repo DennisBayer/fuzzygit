@@ -28,3 +28,8 @@
 ### checkout
 
 * [ ] Add a function to checkout a remote branch.
+
+## Misc
+
+* [ ] Add a message if not in a git repo?
+* [ ] Add a message if nothing was selected in fzf?
