@@ -50,6 +50,9 @@ fg_fzf_single() {
 
 #
 # Shows a list of local branches and switches to the selected one.
+# 
+# Passed arguments are added to the branch listing, 
+# e.g. `-r` will list remote branches.
 #
 fg_switch() {
   fg_isGitRepo || return 1
@@ -61,7 +64,7 @@ fg_switch() {
   local preview="git log --oneline --graph \$("$sanatize" <<< {})"
 
   # get branches; single selection;
-  local item="$(git branch -l |
+  local item="$(git branch -l "$@" |
     fg_fzf_single --preview="$preview" |
     sh -c "$sanatize")"
 
@@ -70,7 +73,7 @@ fg_switch() {
     local gitout="$(echo "$item" | xargs -I %branch git switch %branch) \
       && fg_echo "$gitout""
   else
-    fg_echo "No branches have been found."
+    fg_echo "No branch has been selected."
   fi
 }
 
