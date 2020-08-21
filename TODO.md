@@ -23,11 +23,11 @@
 
 ### restore
 
-* [ ] Add a function to restore files from the staging area.
+* [x] Add a function to restore files from the staging area.
 
 ### checkout
 
-* [ ] Add a function to checkout a remote branch.
+* [x] Add a function to checkout a remote branch. > via argument of fg_switch
 
 ### cherry-pick
 
@@ -39,6 +39,6 @@
 
 ## Misc
 
-* [ ] Cleanup var declaration (remove new lines, use semi-colon).
+* [x] Cleanup var declaration (remove new lines, use semi-colon).
 * [ ] Add a message if not in a git repo?
 * [ ] Add a message if nothing was selected in fzf?
