@@ -155,7 +155,7 @@ fg_restore() {
 
   # get parsable status; show preview and limit search to second block
   local items="$(git status -s -uno | 
-    grep "^ M" |
+    grep -E "^[[:space:]][MARCD]" |
     fg_fzf --nth 2..,.. --preview="$preview" |
     sh -c "$sanatize")"
 
