@@ -125,7 +125,7 @@ fg_unstage() {
 
   # get parsable status; show preview and limit search to second block
   local items="$(git status -s -uno | 
-    grep "^A" |
+    grep -E "^[MARCD][[:space:]]?" |
     fg_fzf --nth 2..,.. --preview="$preview" |
     sh -c "$sanatize")"
 
