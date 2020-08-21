@@ -56,18 +56,19 @@ fg_switch() {
 
   # strip the two leading spaces ("* <branch>")
   local sanatize="sed 's/^..//'"
+
   # get log of branches
   local preview="git log --oneline --graph \$("$sanatize" <<< {})"
-  
+
   # get branches; single selection;
   local item="$(git branch -l |
     fg_fzf_single --preview="$preview" |
     sh -c "$sanatize")"
-  
+
   # switch to branch if any
   if [[ -n "$item" ]]; then
-    local gitout=$(echo "$item" | xargs -I %branch git switch %branch) \
-    && fg_echo "$gitout"
+    local gitout="$(echo "$item" | xargs -I %branch git switch %branch) \
+      && fg_echo "$gitout""
   else
     fg_echo "No branches have been found."
   fi
@@ -81,9 +82,9 @@ fg_add() {
 
   # strip the three leading charactes ("?? <file>")
   local sanatize="sed 's/^...//'"
+
   # check if file is untracked; show pager in preview accordingly
-  local preview="
-    item=\$("$sanatize" <<< {})
+  local preview="item=\$("$sanatize" <<< {})
     if (git status -s -- \""\$item"\" | grep '^??') &>/dev/null; then
         # diff with /dev/null for untracked files
         git diff --no-index -- /dev/null \""\$item"\" | "$fg_var_gitPager"
@@ -92,7 +93,7 @@ fg_add() {
     else
         git diff -- \""\$item"\" | "$fg_var_gitPager"
     fi"
-  
+
   # get parsable status; show preview and limit search to second block
   local items="$(git status -zu |
     fg_fzf --read0 --nth 2..,.. --preview="$preview" |
@@ -101,8 +102,8 @@ fg_add() {
   # add files if any
   if [[ -n "$items" ]]; then
     #  add selected files to staging area; add single quote to escape whitespaces in file names
-    local gitout=$(echo "$items" | xargs -t -I %itemsToAdd git add -- '%itemsToAdd') \
-      && fg_echo "$gitout"
+    local gitout="$(echo "$items" | xargs -t -I %itemsToAdd git add -- '%itemsToAdd') \
+      && fg_echo "$gitout""
   else
     fg_echo "No files have been found."
   fi
@@ -119,8 +120,7 @@ fg_unstage() {
   local sanatize="sed 's/^...//'"
 
   # show diff in pager
-  local preview="
-    item=\$("$sanatize" <<< {})
+  local preview="item=\$("$sanatize" <<< {})
     git diff --staged -- \""\$item"\" | "$fg_var_gitPager""
 
   # get parsable status; show preview and limit search to second block
@@ -132,8 +132,8 @@ fg_unstage() {
   # add files if any
   if [[ -n "$items" ]]; then
     #  remove selected files from staging area; add single quote to escape whitespaces in file names
-    local gitout=$(echo "$items" | xargs -t -I %itemsToUnstage git restore --staged -- '%itemsToUnstage') \
-      && fg_echo "$gitout"
+    local gitout="$(echo "$items" | xargs -t -I %itemsToUnstage git restore --staged -- '%itemsToUnstage') \
+      && fg_echo "$gitout""
   else
     fg_echo "No files have been selected."
   fi
@@ -150,8 +150,7 @@ fg_restore() {
   local sanatize="sed 's/^...//'"
 
   # show diff in pager
-  local preview="
-    item=\$("$sanatize" <<< {})
+  local preview="item=\$("$sanatize" <<< {})
     git diff -- \""\$item"\" | "$fg_var_gitPager""
 
   # get parsable status; show preview and limit search to second block
@@ -163,8 +162,8 @@ fg_restore() {
   # add files if any
   if [[ -n "$items" ]]; then
     #  restore selected files from working directory; add single quote to escape whitespaces in file names
-    local gitout=$(echo "$items" | xargs -t -I %itemsToRestore git restore -- '%itemsToRestore') \
-      && fg_echo "$gitout"
+    local gitout="$(echo "$items" | xargs -t -I %itemsToRestore git restore -- '%itemsToRestore') \
+      && fg_echo "$gitout""
   else
     fg_echo "No files have been selected."
   fi
@@ -211,9 +210,9 @@ fg_hash() {
   fi
 }
 
-bind '"\er": redraw-current-line'
-bind '"\C-g\C-b": "$(fg_switch)\n\e\C-e\er"'
-bind '"\C-g\C-h": "$(fg_hash)\n\e\C-e\er"'
+#bind '"\er": redraw-current-line'
+#bind '"\C-g\C-b": "$(fg_switch)\n\e\C-e\er"'
+#bind '"\C-g\C-h": "$(fg_hash)\n\e\C-e\er"'
 
 # \e\C-e is the default key binding for shell-expand-line. 
 #   Using shell-expand-line is not ideal as it expands aliases as well, but it's the easiest way to do it.
