@@ -85,7 +85,7 @@ export FZF_DEFAULT_OPTS=" \
 
 ### Useful Extensions
 
-If not alread done check out the following projects, which offer nice feature
+If not already done check out the following projects which offer nice feature
 to beautify fzf's preview and Git's diff output.
 
 * [bat][101] - A cat(1) clone with syntax highlighting and Git integration.
