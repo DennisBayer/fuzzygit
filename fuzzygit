@@ -22,13 +22,23 @@ fg_var_gitPager=$(git config core.pager)
 fg_isGitRepo() {
   git rev-parse HEAD > /dev/null 2>&1
 }
-
 fg_echo() {
   [ "$fg_var_enableEcho" != true ] && return 0;
 
   if [[ "$#" -ne 0 ]]; then
-    echo "$@" | xargs -r echo
+    #echo "$@" | xargs -r echo
+    printf "%s\n" "$@"
   fi
+}
+
+fg_header() {
+  # echo -e "
+  #   \e[1m"$1"\e[0m - "$2"
+  # "
+  printf "
+    \e[1m%s\e[0m 
+    \t%s
+  " "$1" "$2"
 }
 
 # -----------------------------------------------------------------------------
@@ -81,9 +91,13 @@ fg_switch() {
   # get log of branches
   local preview="git log --oneline --graph \$("$sanatize" <<< {})"
 
+  local header=$(fg_header \
+    "git switch <selected branch>" \
+    "Switch or checkout the branch.")
+
   # get branches; single selection;
   local item="$(git branch -l "$@" |
-    fg_fzf_single --preview="$preview" |
+    fg_fzf_single --preview="$preview" --header="$header" |
     sh -c "$sanatize")"
 
   # switch to branch if any
@@ -98,6 +112,10 @@ fg_switch() {
 #
 # Shows a list of addable files and adds them to the staging area.
 #
+# fg_add_exec() {
+#   echo "$@" | xargs -t -I %itemsToAdd git add -- '%itemsToAdd'
+# }
+
 fg_add() {
   fg_isGitRepo || return 1
 
@@ -115,10 +133,14 @@ fg_add() {
         git diff -- \""\$item"\" | "$fg_var_gitPager"
     fi"
 
+  local header=$(fg_header \
+    "git add -- <selected items>" \
+    "Adds items to the staging area.")
+
   # get parsable status; show preview and limit search to second block
   local items="$(git status -zu |
     grep -z -v -E '^[MARCD][[:space:]]?' |
-    fg_fzf --read0 --nth 2..,.. --preview="$preview" |
+    fg_fzf --ansi --read0 --nth 2..,.. --preview="$preview" --header="$header" |
     sh -c "$sanatize")"
 
   # add files if any
@@ -145,10 +167,14 @@ fg_unstage() {
   local preview="item=\$("$sanatize" <<< {})
     git diff --staged -- \""\$item"\" | "$fg_var_gitPager""
 
+  local header=$(fg_header \
+    "git restore --staged -- <selected items>" \
+    "Removes items from the staging area.")
+
   # get parsable status; show preview and limit search to second block
   local items="$(git status -s -uno | 
     grep -E "^[MARCD][[:space:]]?" |
-    fg_fzf --nth 2..,.. --preview="$preview" |
+    fg_fzf --nth 2..,.. --preview="$preview" --header="$header" |
     sh -c "$sanatize")"
 
   # add files if any
@@ -175,10 +201,14 @@ fg_restore() {
   local preview="item=\$("$sanatize" <<< {})
     git diff -- \""\$item"\" | "$fg_var_gitPager""
 
+  local header=$(fg_header \
+    "git restore -- <selected items>" \
+    "Restores items from local repository.")
+
   # get parsable status; show preview and limit search to second block
   local items="$(git status -s -uno | 
     grep -E "^[[:space:]][MARCD]" |
-    fg_fzf --nth 2..,.. --preview="$preview" |
+    fg_fzf --nth 2..,.. --preview="$preview" --header="$header" |
     sh -c "$sanatize")"
 
   # add files if any
@@ -200,8 +230,12 @@ fg_log() {
   # show the highlighted commit with "--stats" option
   local preview="git log -1 --stat {1}"
 
+  local header=$(fg_header \
+    "git log --stat <selected commit>^..HEAD" \
+    "Shows the log starting with the selected commit up until HEAD.")
+
   # show a short git log
-  local item="$(git log --oneline | fg_fzf_single --preview="$preview")"
+  local item="$(git log --oneline | fg_fzf_single --preview="$preview" --header="$header")"
 
   # show the commit log between the selected commit and the current head
   if [[ -n "$item" ]]; then
@@ -221,8 +255,12 @@ fg_hash() {
   # show the highlighted commit with "--stats" option
   local preview="git log -1 --stat {1}"
 
+  local header=$(fg_header \
+    "\"\$@\" <selected commit>" \
+    "Passes the selected commit to whatever was given as an argument.")
+
   # show a short git log
-  local items="$(git log --oneline | fg_fzf --preview="$preview")"
+  local items="$(git log --oneline | fg_fzf --preview="$preview" --header="$header")"
 
   # pass the selected commit hashes to the argument, e.g. "fg_hash git show"
   if [[ -n "$items" ]]; then
