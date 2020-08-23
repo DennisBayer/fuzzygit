@@ -49,6 +49,24 @@ fg_fzf_single() {
 # -----------------------------------------------------------------------------
 
 #
+# Main function.
+#
+# The first argument refers to the function which should be invoked, e.g.
+# `fg add` will call `fg_add`.
+# The remaining arguments are passed to the calling function, e.g.
+# `fg hash git show` will call `fg_hash git show`.
+#
+fg() {
+  fg_isGitRepo || return 1
+
+  if [[ "$#" -ne 0 ]]; then
+    fg_"$1" "${@:2:($#-1)}"
+  else
+    fg_echo "No argument was given, e.g: \"fg add\"."
+  fi
+}
+
+#
 # Shows a list of local branches and switches to the selected one.
 # 
 # Passed arguments are added to the branch listing, 
