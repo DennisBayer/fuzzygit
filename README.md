@@ -6,7 +6,7 @@ interactive interface based on [`fzf`][100].
 Handling with multiple files or input arguments on the command line can
 sometimes become cumbersome. Therefore `fuzzygit` marries commands such as
 `git add`, `git restore`, `git switch` with `fzf` in order select items of
-interesst rather than typing.
+interest rather than typing.
 
 ## Table of Contents
 
@@ -14,7 +14,7 @@ interesst rather than typing.
 * [Background](#background)
 * [Usage](#usage)
   * [Configuration](#configuration)
-  * [Useful Extensions](#useful-extensions)
+  * [Useful Third-Party Tools](#useful-third-party-tools)
 * [Install](#install)
   * [Dependencies](#dependencies)
 * [Version Overview](#version-overview)
@@ -26,7 +26,7 @@ interesst rather than typing.
 ## Background
 
 This project started as a personal helper. Additionally I wanted to improve my
-basic bash & linux skills. There might be projects which provide the same
+basic bash & Linux skills. There might be projects which provide the same
 (or even better) functionality. Some of them - which I'm aware of - are listed
 in the [Credits](#credits) section.
 
@@ -62,10 +62,10 @@ preview, and so on.
 ### Configuration
 
 `fuzzygit` itself does not provide any configuration at the moment. It also aims
-as litte as possible to alter your `fzf` configuration.
+to alter your `fzf` configuration as litte as possible.
 
-For some features, like the preview, you might consider to set an option, like
-the preview-binding.
+For some features, like the preview, you might consider to set an option, e.g.
+a binding toggle.
 
 Here's my current configuration as a starting point:
 
@@ -83,9 +83,9 @@ export FZF_DEFAULT_OPTS=" \
   --bind 'ctrl-alt-a:deselect-all' \
 ```
 
-### Useful Extensions
+### Useful Third-Party Tools
 
-If not already done check out the following projects which offer nice feature
+If not already done check out the following projects, which offer nice feature
 to beautify fzf's preview and Git's diff output.
 
 * [bat][101] - A cat(1) clone with syntax highlighting and Git integration.
@@ -137,6 +137,9 @@ Whether there will be a roadmap or issue list is a pending matter.
 ## Credits
 
 * [fzf][100] - For providing the base functionality `fuzzygit` is built upon.
+* [forgit][103] - "A utility tool powered by fzf for using git interactively."
+  Does basically the same as `fuzzygit`, but did not fit my workflow at the time
+  I discovered it.
 
 ## Contributing
 
@@ -157,3 +160,4 @@ issue please file a [new issue][1].
 [100]: https://github.com/junegunn/fzf
 [101]: https://github.com/sharkdp/bat
 [102]: https://github.com/dandavison/delta
+[103]: https://github.com/wfxr/forgit
