@@ -13,13 +13,14 @@ interest rather than typing.
 * [Table of Contents](#table-of-contents)
 * [Background](#background)
 * [Usage](#usage)
+  * [Interaction](#interaction)
   * [Configuration](#configuration)
-  * [Useful Third-Party Tools](#useful-third-party-tools)
 * [Install](#install)
   * [Dependencies](#dependencies)
 * [Version Overview](#version-overview)
 * [Maintainers](#maintainers)
 * [Credits](#credits)
+  * [Useful Third-Party Tools](#useful-third-party-tools)
 * [Contributing](#contributing)
 * [License](#license)
 
@@ -34,6 +35,8 @@ in the [Credits](#credits) section.
 
 The following features are available:
 
+* `fg` - Invokes one of the functions, if an argument is passed, e.g `fg add` or
+  `fg hash git show`.
 * `fg_switch` - Shows a list of branches and switches to the selected one.
   * By default only local branches are shown. To get a list of remote branches,
   pass `-r` as an argument.
@@ -59,13 +62,28 @@ In short: usage does not differ from `fzf`: <kbd>TAB</kbd> to select,
 <kbd>Shift-TAB</kbd> to unselect, <kbd>Shift-PgUp/PgDown</kbd> to scroll in
 preview, and so on.
 
+### Interaction
+
+There are several possibilities for you to integrate `fuzzygit` into your
+workflow. Choose the one which suits you the most.
+
+1. Calling the main function and pass an argument to indicate which function
+   should be called: `fg add`, `fg switch -r`.
+2. Calling the function directly: `fg_add`, `fg_unstage`.
+   and invoking via `git fg restore`, `git fg hash git show`.
+3. Defining a git alias:
+
+    ```bash
+    fg = "!f() { bash -c -i 'fg "$@"' bash "$@"; }; f"
+    ```
+
+    and invoking via `git fg restore`, `git fg hash git show`.
+
 ### Configuration
 
 `fuzzygit` itself does not provide any configuration at the moment. It also aims
-to alter your `fzf` configuration as litte as possible.
-
-For some features, like the preview, you might consider to set an option, e.g.
-a binding toggle.
+to alter your `fzf` configuration as litte as possible. For some features, like
+the preview, you might consider to set an option, e.g. a binding toggle.
 
 Here's my current configuration as a starting point:
 
@@ -82,14 +100,6 @@ export FZF_DEFAULT_OPTS=" \
   --bind 'ctrl-a:select-all' \
   --bind 'ctrl-alt-a:deselect-all' \
 ```
-
-### Useful Third-Party Tools
-
-If not already done check out the following projects, which offer nice feature
-to beautify fzf's preview and Git's diff output.
-
-* [bat][101] - A cat(1) clone with syntax highlighting and Git integration.
-* [delta][102] - A viewer for git and diff output.
 
 ## Install
 
@@ -140,6 +150,14 @@ Whether there will be a roadmap or issue list is a pending matter.
 * [forgit][103] - "A utility tool powered by fzf for using git interactively."
   Does basically the same as `fuzzygit`, but did not fit my workflow at the time
   I discovered it.
+
+### Useful Third-Party Tools
+
+If not already done check out the following projects which offer nice features
+to beautify fzf's preview and Git's diff output.
+
+* [bat][101] - A cat(1) clone with syntax highlighting and Git integration.
+* [delta][102] - A viewer for git and diff output.
 
 ## Contributing
 
