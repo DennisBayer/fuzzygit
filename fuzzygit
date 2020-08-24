@@ -139,7 +139,7 @@ fg_add() {
 
   # get parsable status; show preview and limit search to second block
   local items="$(git status -su |
-    grep -v -E '^[MARCD][[:space:]]?' |
+    grep -v -E '^[MARCD][[:space:]]' |
     fg_fzf --nth 2..,.. --preview="$preview" --header="$header" |
     sh -c "$sanatize")"
 
