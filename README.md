@@ -47,6 +47,8 @@ The following features are available:
   and restores the version from the local repository.
 * `fg_log` - Shows the commit history and shows the log between the selected one
   and the HEAD.
+* `fg_flog` - Lists all items of the git tree and shows the log of the selected
+  item.
 * `fg_hash` - Shows the commit history and passes the hashes of the selected
   entries to the command which was given as an argument.
   * E.g. to get detailed information about a commit use `fg_hash git show`.

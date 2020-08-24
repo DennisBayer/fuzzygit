@@ -256,6 +256,25 @@ fg_log() {
   fi
 }
 
+fg_flog() {
+  fg_isGitRepo || return 1
+
+  local preview="git log -- {1}"
+
+  local header="$(fg_header \
+    "git log <selected item>" \
+    "Shows the log of the selected item.")"
+
+  local item="$(git ls-tree -r --name-only $(git branch --show-current) |
+    fg_fzf_single --preview="$preview" --header="$header")"
+
+  if [[ -n "$item" ]]; then
+    echo "$item" | xargs -i -I %item git log -- %item
+  else
+    fg_echo "No item has been selected."
+  fi
+}
+
 #
 # Shows the commit history and passes the hashes of the selected entries
 # to the command which was given as an argument.
