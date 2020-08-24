@@ -138,9 +138,9 @@ fg_add() {
     "Adds items to the staging area.")
 
   # get parsable status; show preview and limit search to second block
-  local items="$(git status -zu |
-    grep -z -v -E '^[MARCD][[:space:]]?' |
-    fg_fzf --ansi --read0 --nth 2..,.. --preview="$preview" --header="$header" |
+  local items="$(git status -su |
+    grep -v -E '^[MARCD][[:space:]]?' |
+    fg_fzf --nth 2..,.. --preview="$preview" --header="$header" |
     sh -c "$sanatize")"
 
   # add files if any
