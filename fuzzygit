@@ -47,6 +47,11 @@ fg_header() {
 #
 FG_GIT_STATUS_PATTERN="'s/^...//; s/.*->.//'"
 
+#
+# Strip the two leading spaces ("* <branch>")
+#
+FG_GIT_SWITCH_PATTERN="'s/^..//'"
+
 # -----------------------------------------------------------------------------
 # fzf functions
 # -----------------------------------------------------------------------------
@@ -92,7 +97,7 @@ fg_switch() {
   fg_isGitRepo || return 1
 
   # strip the two leading spaces ("* <branch>")
-  local sanatize="sed 's/^..//'"
+  local sanatize="sed "$FG_GIT_SWITCH_PATTERN""
 
   # get log of branches
   local preview="git log --oneline --graph \$("$sanatize" <<< {})"
