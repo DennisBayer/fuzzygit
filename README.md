@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="/docs/assets/images/fuzzygit.png" alt="fuzzygit banner" />
+</p>
+
 # fuzzygit
 
 `fuzzygit` aims to ease the usage of common Git commands by applying a simple
