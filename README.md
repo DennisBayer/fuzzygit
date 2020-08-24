@@ -13,7 +13,7 @@ sometimes become cumbersome. Therefore `fuzzygit` marries commands such as
 interest rather than typing.
 
 <p align="center">
-  <img src="/docs/assets/images/fuzzygit-demo.gif" width="1280" height="720" alt="fuzzygit demo" />
+  <img src="/docs/assets/images/fuzzygit-demo.gif" width="800" height="450" alt="fuzzygit demo" />
 </p>
 
 ## Table of Contents
