@@ -22,6 +22,7 @@ fg_var_gitPager=$(git config core.pager)
 fg_isGitRepo() {
   git rev-parse HEAD > /dev/null 2>&1
 }
+
 fg_echo() {
   [ "$fg_var_enableEcho" != true ] && return 0;
 
@@ -107,9 +108,9 @@ fg_switch() {
   # get log of branches
   local preview="git log '"$FG_GIT_LOG_PRETTY_FORMAT"' \$("$sanatize" <<< {})"
 
-  local header=$(fg_header \
+  local header="$(fg_header \
     "git switch <selected branch>" \
-    "Switch or checkout the branch.")
+    "Switch or checkout the branch.")"
 
   # get branches; single selection;
   local item="$(git branch -l "$@" |
@@ -128,10 +129,6 @@ fg_switch() {
 #
 # Shows a list of addable files and adds them to the staging area.
 #
-# fg_add_exec() {
-#   echo "$@" | xargs -t -I %itemsToAdd git add -- '%itemsToAdd'
-# }
-
 fg_add() {
   fg_isGitRepo || return 1
 
@@ -148,9 +145,9 @@ fg_add() {
         git diff -- \""\$item"\" | "$fg_var_gitPager"
     fi"
 
-  local header=$(fg_header \
+  local header="$(fg_header \
     "git add -- <selected items>" \
-    "Adds items to the staging area.")
+    "Adds items to the staging area.")"
 
   # get parsable status; show preview and limit search to second block
   local items="$(git status -su |
@@ -164,7 +161,7 @@ fg_add() {
     local gitout="$(echo "$items" | xargs -t -I %itemsToAdd git add -- '%itemsToAdd') \
       && fg_echo "$gitout""
   else
-    fg_echo "No files have been found."
+    fg_echo "No files have been selected."
   fi
 }
 
@@ -181,12 +178,12 @@ fg_unstage() {
   local preview="item=\$("$sanatize" <<< {})
     git diff --staged -- \""\$item"\" | "$fg_var_gitPager""
 
-  local header=$(fg_header \
+  local header="$(fg_header \
     "git restore --staged -- <selected items>" \
-    "Removes items from the staging area.")
+    "Removes items from the staging area.")"
 
   # get parsable status; show preview and limit search to second block
-  local items="$(git status -s -uno | 
+  local items="$(git status -s -uno |
     grep -E "^[MARCD][[:space:]]?" |
     fg_fzf --nth 2..,.. --preview="$preview" --header="$header" |
     sh -c "$sanatize")"
@@ -214,12 +211,12 @@ fg_restore() {
   local preview="item=\$("$sanatize" <<< {})
     git diff -- \""\$item"\" | "$fg_var_gitPager""
 
-  local header=$(fg_header \
+  local header="$(fg_header \
     "git restore -- <selected items>" \
-    "Restores items from local repository.")
+    "Restores items from local repository.")"
 
   # get parsable status; show preview and limit search to second block
-  local items="$(git status -s -uno | 
+  local items="$(git status -s -uno |
     grep -E "^[[:space:]][MARCD]" |
     fg_fzf --nth 2..,.. --preview="$preview" --header="$header" |
     sh -c "$sanatize")"
@@ -243,12 +240,13 @@ fg_log() {
   # show the highlighted commit with "--stats" option
   local preview="git log -1 --stat {1}"
 
-  local header=$(fg_header \
+  local header="$(fg_header \
     "git log --stat <selected commit>^..HEAD" \
-    "Shows the log starting with the selected commit up until HEAD.")
+    "Shows the log starting with the selected commit up until HEAD.")"
 
   # show a short git log
-  local item="$(git log "$FG_GIT_LOG_PRETTY_FORMAT" | fg_fzf_single --preview="$preview" --header="$header")"
+  local item="$(git log "$FG_GIT_LOG_PRETTY_FORMAT" |
+    fg_fzf_single --preview="$preview" --header="$header")"
 
   # show the commit log between the selected commit and the current head
   if [[ -n "$item" ]]; then
@@ -268,12 +266,13 @@ fg_hash() {
   # show the highlighted commit with "--stats" option
   local preview="git log -1 --stat {1}"
 
-  local header=$(fg_header \
+  local header="$(fg_header \
     "\"\$@\" <selected commit>" \
-    "Passes the selected commit to whatever was given as an argument.")
+    "Passes the selected commit to whatever was given as an argument.")"
 
   # show a short git log
-  local items="$(git log "$FG_GIT_LOG_PRETTY_FORMAT" | fg_fzf --preview="$preview" --header="$header")"
+  local items="$(git log "$FG_GIT_LOG_PRETTY_FORMAT" |
+    fg_fzf --preview="$preview" --header="$header")"
 
   # pass the selected commit hashes to the argument, e.g. "fg_hash git show"
   if [[ -n "$items" ]]; then
@@ -282,100 +281,3 @@ fg_hash() {
     fg_echo "No commit has been selected."
   fi
 }
-
-#bind '"\er": redraw-current-line'
-#bind '"\C-g\C-b": "$(fg_switch)\n\e\C-e\er"'
-#bind '"\C-g\C-h": "$(fg_hash)\n\e\C-e\er"'
-
-# \e\C-e is the default key binding for shell-expand-line. 
-#   Using shell-expand-line is not ideal as it expands aliases as well, but it's the easiest way to do it.
-# redraw-current-line is required to clear up the prompt when you're not on tmux. 
-#   If you're always on tmux, you can omit the part.
-
-  #local git="git status -sz" # s: short; z: NUL instead LF
-  #local extract="
-  #    sed 's/^.*]  //' |
-  #    sed 's/.* -> //' |
-  #    sed -e 's/^\\\"//' -e 's/\\\"\$//'"
-  #files="$(git)"
-  #[[ -n "$files" ]] 
-
-# ---
-# --- NOTES 
-# ---
-
-# ---
-# fzf field index expresions
-#
-# -- {+<>} - all selections when multiple lines are selected
-# -- {s}  - preserve the whitespace
-# -- {q}  - the current query string
-# -- {n}  - zero-based ordinal index of the line
-# -- {f}  - the path of a temporary file that holds the evaluated list
-# 1      The 1st field
-# 2      The 2nd field
-# -1     The last field
-# -2     The 2nd to last field
-# 3..5   From the 3rd field to the 5th field
-# 2..    From the 2nd field to the last field
-# ..-3   From the 1st field to the 3rd to the last field
-# ..     All the fields
-
-# ---
-# sed s/^..//
-  # s   - search and replace
-  # /   - start pattern
-  # ^.. - line start and any char two times
-  # /   - end pattern
-  # /   - no replacement was defined before slash -> remove match
-
-## fg_switch
-#echo "$gitout" | xargs -r echo
-#echo "$items" | fzf --preview="$preview" --print0 | sh -c "$sanatize" | xargs --null -I %branch git switch %branch >&1 | xargs -r echo
-# ---
-
-# ---
-## fg_add
-# fg_add() {
-#   fg_isGitRepo || return 1
-#   gitPager=$(git config core.pager)
-#   echo $gitPager
-#   $(git status -s | fzf -m --cycle --nth 2.. --preview 'git diff --staged -- {-1} | "$gitPager"')
-# }
-
-# git st -su | xargs --null -I % echo % | sed 's/^...//' | sed 's/.*.-> //'
-# git -c color.status=always status -su | fg_fzf --ansi | sed 's/^...//' | sed 's/.*.-> //'
-# ---
-
-# ---
-  # local sanatizePreview="sed 's/^...//'"                                     # strip the two leading spaces
-  # local sanatizeSelection="sed 's/^...//'"
-# ---
-
-
-# ---
-  # local added=$(git config --get-color color.status.added green)       # get color codes
-  # local changed=$(git config --get-color color.status.changed red)     # get color codes
-  # local unmerged=$(git config --get-color color.status.unmerged red)   # get color codes
-  # local untracked=$(git config --get-color color.status.untracked red) # get color codes
-
-  # #local items="$(git -c color.status=always status -su |
-  #   #grep -F -e "$added" -e "$changed" -e "$unmerged" -e "$untracked" |
-  #   #sed -E 's/^(..[^[:space:]]*)[[:space:]]+(.*)$/[\1]  \2/')"
-  # # local items="$(git -c color.status=always status -su | 
-  # #   sed -E 's/^(..[^[:space:]]*)[[:space:]]+(.*)$/[\1]  \2/' |
-  # #   fg_fzf --preview="$preview" --nth 2..,..)"
-
-  # # local items="$(git -c color.status=always -c status.relativePaths=true status -su |
-  # #   grep -F -e "$changed" -e "$unmerged" -e "$untracked" |
-  # #   sed -E 's/^(..[^[:space:]]*)[[:space:]]+(.*)$/[\1]  \2/'|
-  # #   fg_fzf --preview="$preview" --nth 2..,..)"
-# ---
-
-# ---
-##local gitout=$(echo "$items" | fg_fzf --preview="$preview" --print0 | sh -c "$sanatize" | xargs -t --null -I %filesToAdd git add %filesToAdd) \
-##&& fg_echo gitout
-#local gitout=$(echo "$items" | fg_fzf --preview="$preview" --nth 2..,.. | xargs -t --null sh -c "$sanatizeSelection" | xargs -t --null -I %filesToAdd git add %filesToAdd) \
-#local gitout=$(echo "$items" | fg_fzf --preview="$preview" --nth 2..,.. | xargs -t --null sh -c "$sanatizeSelection" | xargs -t --null -I %filesToAdd echo %filesToAdd) \
-#&& fg_echo "$gitout"
-# ---
