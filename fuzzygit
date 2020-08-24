@@ -41,6 +41,12 @@ fg_header() {
   " "$1" "$2"
 }
 
+#
+# Strip the three leading charactes ("?? <item>") and if ' -> ' is contained
+# keep the part afterwards only.
+#
+FG_GIT_STATUS_PATTERN="'s/^...//; s/.*->.//'"
+
 # -----------------------------------------------------------------------------
 # fzf functions
 # -----------------------------------------------------------------------------
@@ -119,8 +125,7 @@ fg_switch() {
 fg_add() {
   fg_isGitRepo || return 1
 
-  # strip the three leading charactes ("?? <file>")
-  local sanatize="sed 's/^...//'"
+  local sanatize="sed "$FG_GIT_STATUS_PATTERN""
 
   # check if file is untracked; show pager in preview accordingly
   local preview="item=\$("$sanatize" <<< {})
@@ -160,8 +165,7 @@ fg_add() {
 fg_unstage() {
   fg_isGitRepo || return 1
 
-  # strip the three leading charactes ("?? <file>")
-  local sanatize="sed 's/^...//'"
+  local sanatize="sed "$FG_GIT_STATUS_PATTERN""
 
   # show diff in pager
   local preview="item=\$("$sanatize" <<< {})
@@ -194,8 +198,7 @@ fg_unstage() {
 fg_restore() {
   fg_isGitRepo || return 1
 
-  # strip the three leading charactes ("?? <file>")
-  local sanatize="sed 's/^...//'"
+  local sanatize="sed "$FG_GIT_STATUS_PATTERN""
 
   # show diff in pager
   local preview="item=\$("$sanatize" <<< {})
