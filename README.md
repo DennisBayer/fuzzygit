@@ -12,6 +12,10 @@ sometimes become cumbersome. Therefore `fuzzygit` marries commands such as
 `git add`, `git restore`, `git switch` with `fzf` in order select items of
 interest rather than typing.
 
+<p align="center">
+  <img src="/docs/assets/images/fuzzygit-demo.gif" width="1280" height="720" alt="fuzzygit demo" />
+</p>
+
 ## Table of Contents
 
 * [Table of Contents](#table-of-contents)
