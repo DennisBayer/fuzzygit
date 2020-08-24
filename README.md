@@ -47,8 +47,11 @@ The following features are available:
   and restores the version from the local repository.
 * `fg_log` - Shows the commit history and shows the log between the selected one
   and the HEAD.
+  * By default `--stat` is passed to `git log`. To get a different preview and
+  output, pass a custom flag, like `--oneline`.
 * `fg_flog` - Lists all items of the git tree and shows the log of the selected
   item.
+  * To get a different preview and output, pass a custom flag, like `--numstat`.
 * `fg_hash` - Shows the commit history and passes the hashes of the selected
   entries to the command which was given as an argument.
   * E.g. to get detailed information about a commit use `fg_hash git show`.
