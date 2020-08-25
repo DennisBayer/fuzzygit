@@ -273,7 +273,7 @@ fg_log() {
   local preview header item
 
   # show the highlighted commit with "--stats" option
-  preview="git log -1 --stat $@ {1}"
+  preview="git log -1 ${*:-"--stat"} {1}"
 
   header="$(fg_header \
     "git log --stat <selected commit>^..HEAD" \
@@ -285,7 +285,7 @@ fg_log() {
 
   # show the commit log between the selected commit and the current head
   if [[ -n "$item" ]]; then
-    echo "$item" | awk '{print $1}' | xargs -I %commitHash% git log --stat "$@" %commitHash%^..HEAD
+    echo "$item" | awk '{print $1}' | xargs -I %commitHash% git log "${@:-"--stat"}" %commitHash%^..HEAD
   else
     fg_echo "No commit has been selected."
   fi
@@ -296,7 +296,7 @@ fg_flog() {
 
   local preview header item
 
-  preview="git log $@ -- {1}"
+  preview="git log ${*:-"--stat"} -- {1}"
 
   header="$(fg_header \
     "git log <selected item>" \
@@ -306,7 +306,7 @@ fg_flog() {
     fg_fzf_single --preview="$preview" --header="$header")"
 
   if [[ -n "$item" ]]; then
-    echo "$item" | xargs -i -I %item git log "$@" -- %item
+    echo "$item" | xargs -i -I %item git log "${@:-"--stat"}" -- %item
   else
     fg_echo "No item has been selected."
   fi
