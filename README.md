@@ -87,7 +87,7 @@ workflow. Choose the one which suits you the most.
 3. Defining a git alias:
 
     ```bash
-    fg = "!f() { bash -c -i 'fg "$@"' bash "$@"; }; f"
+    fg = "!f() { bash -c -i 'fuzzygit "$@"' bash "$@"; }; f"
     ```
 
     and invoking via `git fg restore`, `git fg hash git show`.

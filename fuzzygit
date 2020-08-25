@@ -83,7 +83,7 @@ fg_fzf_single() {
 # The remaining arguments are passed to the calling function, e.g.
 # `fg hash git show` will call `fg_hash git show`.
 #
-fg() {
+fuzzygit() {
   fg_isGitRepo || return 1
 
   if [[ "$#" -ne 0 ]]; then
