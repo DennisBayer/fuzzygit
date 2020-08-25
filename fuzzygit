@@ -145,7 +145,7 @@ fg_add() {
       if (git status -s -- \""\$item"\" | grep '^??') &>/dev/null; then
           # diff with /dev/null for untracked files
           git diff --no-index -- /dev/null \""\$item"\" | "$fg_var_gitPager"
-      elif (git status -s -- \""\$item"\" | grep '^[M|A]'); then
+      elif (git status -s -- \""\$item"\" | grep '^[M|A][[:space:]]'); then
           git diff --staged -- \""\$item"\" | "$fg_var_gitPager"
       else
           git diff -- \""\$item"\" | "$fg_var_gitPager"
@@ -155,7 +155,7 @@ fg_add() {
       if (git status -s -- {2..} | grep '^??') &>/dev/null; then
           # diff with /dev/null for untracked files
           git diff --no-index -- /dev/null {2..} | "$fg_var_gitPager"
-      elif (git status -s -- {2..} | grep '^[M|A]'); then
+      elif (git status -s -- {2..} | grep '^[M|A][[:space:]]'); then
           git diff --staged -- '{2..}' | "$fg_var_gitPager"
       else
           git diff -- '{2..}' | "$fg_var_gitPager"
