@@ -99,7 +99,6 @@ workflow. Choose the one which suits you the most.
 1. Calling the main function and pass an argument to indicate which function
    should be called: `fuzzygit add`, `fuzzygit switch -r`.
 2. Calling the function directly: `fg_add`, `fg_unstage`.
-   and invoking via `git fg restore`, `git fg hash git show`.
 3. Defining a git alias:
 
     ```bash
