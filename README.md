@@ -146,6 +146,13 @@ $ fzf --version
 0.21.1 (334a4fa)
 ```
 
+Some basic tools are required as well:
+
+* `awk`
+* `sed`
+* `xargs`
+* `printf`
+
 ## Version Overview
 
 The current version is `prototype`. As soon as a second person has successfully
