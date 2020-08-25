@@ -104,13 +104,13 @@ fg_switch() {
   fg_isGitRepo || return 1
 
   # strip the two leading spaces ("* <branch>")
-  local sanatize="sed "$FG_GIT_SWITCH_PATTERN""
+  local sanatize="sed $FG_GIT_SWITCH_PATTERN"
 
   # get log of branches
   if [[ "$fg_var_previewUseSed" = true ]]; then
-    local preview="git log '"$FG_GIT_LOG_PRETTY_FORMAT"' \$("$sanatize" <<< {})"
+    local preview="git log '$FG_GIT_LOG_PRETTY_FORMAT' \$($sanatize <<< {})"
   else
-    local preview="git log '"$FG_GIT_LOG_PRETTY_FORMAT"' {1}"
+    local preview="git log '$FG_GIT_LOG_PRETTY_FORMAT' {1}"
   fi
 
   local header="$(fg_header \
@@ -125,7 +125,7 @@ fg_switch() {
   # switch to branch if any
   if [[ -n "$item" ]]; then
     local gitout="$(echo "$item" | xargs -I %branch git switch %branch) \
-      && fg_echo "$gitout""
+      && fg_echo $gitout"
   else
     fg_echo "No branch has been selected."
   fi
@@ -137,28 +137,28 @@ fg_switch() {
 fg_add() {
   fg_isGitRepo || return 1
 
-  local sanatize="sed "$FG_GIT_STATUS_PATTERN""
+  local sanatize="sed $FG_GIT_STATUS_PATTERN"
 
   # check if file is untracked; show pager in preview accordingly
   if [[ "$fg_var_previewUseSed" = true ]]; then
-    local preview="item=\$("$sanatize" <<< {})
-      if (git status -s -- \""\$item"\" | grep '^??') &>/dev/null; then
+    local preview="item=\$($sanatize <<< {})
+      if (git status -s -- \"\$item\" | grep '^??') &>/dev/null; then
           # diff with /dev/null for untracked files
-          git diff --no-index -- /dev/null \""\$item"\" | "$fg_var_gitPager"
-      elif (git status -s -- \""\$item"\" | grep '^[M|A][[:space:]]'); then
-          git diff --staged -- \""\$item"\" | "$fg_var_gitPager"
+          git diff --no-index -- /dev/null \"\$item\" | $fg_var_gitPager
+      elif (git status -s -- \"\$item\" | grep '^[M|A][[:space:]]'); then
+          git diff --staged -- \"\$item\" | $fg_var_gitPager
       else
-          git diff -- \""\$item"\" | "$fg_var_gitPager"
+          git diff -- \"\$item\" | $fg_var_gitPager
       fi"
   else
     local preview="
       if (git status -s -- {2..} | grep '^??') &>/dev/null; then
           # diff with /dev/null for untracked files
-          git diff --no-index -- /dev/null {2..} | "$fg_var_gitPager"
+          git diff --no-index -- /dev/null {2..} | $fg_var_gitPager
       elif (git status -s -- {2..} | grep '^[M|A][[:space:]]'); then
-          git diff --staged -- '{2..}' | "$fg_var_gitPager"
+          git diff --staged -- '{2..}' | $fg_var_gitPager
       else
-          git diff -- '{2..}' | "$fg_var_gitPager"
+          git diff -- '{2..}' | $fg_var_gitPager
       fi"
   fi
 
@@ -176,7 +176,7 @@ fg_add() {
   if [[ -n "$items" ]]; then
     #  add selected files to staging area; add single quote to escape whitespaces in file names
     local gitout="$(echo "$items" | xargs -t -I %itemsToAdd git add -- '%itemsToAdd') \
-      && fg_echo "$gitout""
+      && fg_echo $gitout"
   else
     fg_echo "No files have been selected."
   fi
@@ -189,14 +189,14 @@ fg_add() {
 fg_unstage() {
   fg_isGitRepo || return 1
 
-  local sanatize="sed "$FG_GIT_STATUS_PATTERN""
+  local sanatize="sed $FG_GIT_STATUS_PATTERN"
 
   # show diff in pager
   if [[ "$fg_var_previewUseSed" = true ]]; then
-    local preview="item=\$("$sanatize" <<< {})
-      git diff --staged -- \""\$item"\" | "$fg_var_gitPager""
+    local preview="item=\$($sanatize <<< {})
+      git diff --staged -- \"\$item\" | $fg_var_gitPager"
   else 
-    local preview="git diff --staged -- '{2..}' | "$fg_var_gitPager""
+    local preview="git diff --staged -- '{2..}' | $fg_var_gitPager"
   fi
 
   local header="$(fg_header \
@@ -213,7 +213,7 @@ fg_unstage() {
   if [[ -n "$items" ]]; then
     #  remove selected files from staging area; add single quote to escape whitespaces in file names
     local gitout="$(echo "$items" | xargs -t -I %itemsToUnstage git restore --staged -- '%itemsToUnstage') \
-      && fg_echo "$gitout""
+      && fg_echo $gitout"
   else
     fg_echo "No files have been selected."
   fi
@@ -226,14 +226,14 @@ fg_unstage() {
 fg_restore() {
   fg_isGitRepo || return 1
 
-  local sanatize="sed "$FG_GIT_STATUS_PATTERN""
+  local sanatize="sed $FG_GIT_STATUS_PATTERN"
 
   # show diff in pager
   if [[ "$fg_var_previewUseSed" = true ]]; then
-    local preview="item=\$("$sanatize" <<< {})
-      git diff -- \""\$item"\" | "$fg_var_gitPager""
+    local preview="item=\$($sanatize <<< {})
+      git diff -- \"\$item\" | $fg_var_gitPager"
   else
-    local preview="git diff -- '{2..}' | "$fg_var_gitPager""
+    local preview="git diff -- '{2..}' | $fg_var_gitPager"
   fi
 
   local header="$(fg_header \
@@ -250,7 +250,7 @@ fg_restore() {
   if [[ -n "$items" ]]; then
     #  restore selected files from working directory; add single quote to escape whitespaces in file names
     local gitout="$(echo "$items" | xargs -t -I %itemsToRestore git restore -- '%itemsToRestore') \
-      && fg_echo "$gitout""
+      && fg_echo $gitout"
   else
     fg_echo "No files have been selected."
   fi
@@ -263,7 +263,7 @@ fg_log() {
   fg_isGitRepo || return 1
 
   # show the highlighted commit with "--stats" option
-  local preview="git log -1 --stat "$@" {1}"
+  local preview="git log -1 --stat $@ {1}"
 
   local header="$(fg_header \
     "git log --stat <selected commit>^..HEAD" \
@@ -284,13 +284,13 @@ fg_log() {
 fg_flog() {
   fg_isGitRepo || return 1
 
-  local preview="git log "$@" -- {1}"
+  local preview="git log $@ -- {1}"
 
   local header="$(fg_header \
     "git log <selected item>" \
     "Shows the log of the selected item.")"
 
-  local item="$(git ls-tree -r --name-only $(git branch --show-current) |
+  local item="$(git ls-tree -r --name-only "$(git branch --show-current)" |
     fg_fzf_single --preview="$preview" --header="$header")"
 
   if [[ -n "$item" ]]; then
