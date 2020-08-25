@@ -43,8 +43,8 @@ in the [Credits](#credits) section.
 
 The following features are available:
 
-* `fg` - Invokes one of the functions, if an argument is passed, e.g `fg add` or
-  `fg hash git show`.
+* `fuzzygit` - Invokes one of the functions, if an argument is passed,
+  e.g `fuzzygit add` or `fuzzygit hash git show`.
 * `fg_switch` - Shows a list of branches and switches to the selected one.
   * By default only local branches are shown. To get a list of remote branches,
   pass `-r` as an argument.
@@ -81,7 +81,7 @@ There are several possibilities for you to integrate `fuzzygit` into your
 workflow. Choose the one which suits you the most.
 
 1. Calling the main function and pass an argument to indicate which function
-   should be called: `fg add`, `fg switch -r`.
+   should be called: `fuzzygit add`, `fuzzygit switch -r`.
 2. Calling the function directly: `fg_add`, `fg_unstage`.
    and invoking via `git fg restore`, `git fg hash git show`.
 3. Defining a git alias:
