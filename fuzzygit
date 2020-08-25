@@ -335,3 +335,29 @@ fg_hash() {
     fg_echo "No commit has been selected."
   fi
 }
+
+fg_cherry() {
+  fg_isGitRepo || return 1
+  [[ "$#" -lt 1 ]] && fg_echo "No branch to show log for has been given." && return 1
+
+  local branch preview header items
+  branch=$1
+  shift
+
+  # show the highlighted commit with "--stats" option
+  preview="git log -1 ${@:-"--stat"} {1}"
+
+  header="$(fg_header \
+    "git cherry-pick -x <selected commits>" \
+    "Cherry picks the selected commits.")"
+
+  # show a short git log of the given branch
+  items="$(git log $branch "$FG_GIT_LOG_PRETTY_FORMAT" |
+    fg_fzf --preview="$preview" --header="$header")"
+
+  if [[ -n "$items" ]]; then
+    echo "$items" | awk '{print $1}' | xargs -t -I %commitHash% git cherry-pick -x %commitHash%
+  else
+    fg_echo "No commit has been selected."
+  fi
+}

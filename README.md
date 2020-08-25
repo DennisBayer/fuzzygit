@@ -63,6 +63,10 @@ The following features are available:
 * `fg_hash` - Shows the commit history and passes the hashes of the selected
   entries to the command which was given as an argument.
   * E.g. to get detailed information about a commit use `fg_hash git show`.
+* `fg_cherry` - Cherry picks the selected commits from the given branch
+  and the HEAD. The first parameter __must__ be a branch name.
+  * By default `--stat` is passed to `git log`. To get a different preview,
+    pass a custom flag, like `--oneline`.
 
 Once `fzf` lists the available items, choose one or more (depending on the
 current operation) and confirm by pressing <kbd>ENTER</kbd>.
