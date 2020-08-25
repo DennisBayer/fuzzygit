@@ -11,6 +11,7 @@
 
 # Fuzzygit config
 fg_var_enableEcho=true
+fg_var_previewUseSed=true
 
 # Git config
 fg_var_gitPager=$(git config core.pager)
@@ -46,7 +47,7 @@ fg_header() {
 # Strip the three leading charactes ("?? <item>") and if ' -> ' is contained
 # keep the part afterwards only.
 #
-FG_GIT_STATUS_PATTERN="'s/^...//; s/.*->.//'"
+FG_GIT_STATUS_PATTERN="'s/^...//; s/.*->.//; s/\"//g'"
 
 #
 # Strip the two leading spaces ("* <branch>")
@@ -106,7 +107,11 @@ fg_switch() {
   local sanatize="sed "$FG_GIT_SWITCH_PATTERN""
 
   # get log of branches
-  local preview="git log '"$FG_GIT_LOG_PRETTY_FORMAT"' \$("$sanatize" <<< {})"
+  if [[ "$fg_var_previewUseSed" = true ]]; then
+    local preview="git log '"$FG_GIT_LOG_PRETTY_FORMAT"' \$("$sanatize" <<< {})"
+  else
+    local preview="git log '"$FG_GIT_LOG_PRETTY_FORMAT"' {1}"
+  fi
 
   local header="$(fg_header \
     "git switch <selected branch>" \
@@ -135,15 +140,27 @@ fg_add() {
   local sanatize="sed "$FG_GIT_STATUS_PATTERN""
 
   # check if file is untracked; show pager in preview accordingly
-  local preview="item=\$("$sanatize" <<< {})
-    if (git status -s -- \""\$item"\" | grep '^??') &>/dev/null; then
-        # diff with /dev/null for untracked files
-        git diff --no-index -- /dev/null \""\$item"\" | "$fg_var_gitPager"
-    elif (git status -s -- \""\$item"\" | grep '^[M|A]'); then
-        git diff --staged -- \""\$item"\" | "$fg_var_gitPager"
-    else
-        git diff -- \""\$item"\" | "$fg_var_gitPager"
-    fi"
+  if [[ "$fg_var_previewUseSed" = true ]]; then
+    local preview="item=\$("$sanatize" <<< {})
+      if (git status -s -- \""\$item"\" | grep '^??') &>/dev/null; then
+          # diff with /dev/null for untracked files
+          git diff --no-index -- /dev/null \""\$item"\" | "$fg_var_gitPager"
+      elif (git status -s -- \""\$item"\" | grep '^[M|A]'); then
+          git diff --staged -- \""\$item"\" | "$fg_var_gitPager"
+      else
+          git diff -- \""\$item"\" | "$fg_var_gitPager"
+      fi"
+  else
+    local preview="
+      if (git status -s -- {2..} | grep '^??') &>/dev/null; then
+          # diff with /dev/null for untracked files
+          git diff --no-index -- /dev/null {2..} | "$fg_var_gitPager"
+      elif (git status -s -- {2..} | grep '^[M|A]'); then
+          git diff --staged -- '{2..}' | "$fg_var_gitPager"
+      else
+          git diff -- '{2..}' | "$fg_var_gitPager"
+      fi"
+  fi
 
   local header="$(fg_header \
     "git add -- <selected items>" \
@@ -175,8 +192,12 @@ fg_unstage() {
   local sanatize="sed "$FG_GIT_STATUS_PATTERN""
 
   # show diff in pager
-  local preview="item=\$("$sanatize" <<< {})
-    git diff --staged -- \""\$item"\" | "$fg_var_gitPager""
+  if [[ "$fg_var_previewUseSed" = true ]]; then
+    local preview="item=\$("$sanatize" <<< {})
+      git diff --staged -- \""\$item"\" | "$fg_var_gitPager""
+  else 
+    local preview="git diff --staged -- '{2..}' | "$fg_var_gitPager""
+  fi
 
   local header="$(fg_header \
     "git restore --staged -- <selected items>" \
@@ -208,8 +229,12 @@ fg_restore() {
   local sanatize="sed "$FG_GIT_STATUS_PATTERN""
 
   # show diff in pager
-  local preview="item=\$("$sanatize" <<< {})
-    git diff -- \""\$item"\" | "$fg_var_gitPager""
+  if [[ "$fg_var_previewUseSed" = true ]]; then
+    local preview="item=\$("$sanatize" <<< {})
+      git diff -- \""\$item"\" | "$fg_var_gitPager""
+  else
+    local preview="git diff -- '{2..}' | "$fg_var_gitPager""
+  fi
 
   local header="$(fg_header \
     "git restore -- <selected items>" \
