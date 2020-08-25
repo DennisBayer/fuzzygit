@@ -21,6 +21,7 @@ interest rather than typing.
 * [Table of Contents](#table-of-contents)
 * [Background](#background)
 * [Usage](#usage)
+  * [Finder](#finder)
   * [Interaction](#interaction)
   * [Configuration](#configuration)
 * [Install](#install)
@@ -43,9 +44,9 @@ in the [Credits](#credits) section.
 
 The following features are available:
 
-* `fuzzygit` - Invokes one of the functions, if an argument is passed,
-  e.g `fuzzygit add` or `fuzzygit hash git show`.
-* `fg_switch` - Shows a list of branches and switches to the selected one.
+* `fuzzygit <functionName> [<args..>]`  - Invokes one of the functions, if an argument is passed.
+  * E.g. `fuzzygit add` or `fuzzygit hash git show`.
+* `fg_switch [-r]` - Shows a list of branches and switches to the selected one.
   * By default only local branches are shown. To get a list of remote branches,
   pass `-r` as an argument.
 * `fg_add` - Shows a list of files which can be added to the staging area.
@@ -53,20 +54,21 @@ The following features are available:
   added files) and puts them back into the working area.
 * `fg_restore` - Show the list of files in the working area (aka modified files)
   and restores the version from the local repository.
-* `fg_log` - Shows the commit history and shows the log between the selected one
-  and the HEAD.
-  * By default `--stat` is passed to `git log`. To get a different preview and
-  output, pass a custom flag, like `--oneline`.
-* `fg_flog` - Lists all items of the git tree and shows the log of the selected
-  item.
-  * To get a different preview and output, pass a custom flag, like `--numstat`.
-* `fg_hash` - Shows the commit history and passes the hashes of the selected
-  entries to the command which was given as an argument.
+* `fg_log [<git log option>...]` - Shows the commit history and shows the log
+  between the selected one and the HEAD.
+* `fg_flog [<git log option>...]` - Lists all items of the git tree and shows
+  the log of the selected item.
+* `fg_hash <command for hash>` - Shows the commit history and passes the hashes
+  of the selected entries to the command which was given as an argument.
   * E.g. to get detailed information about a commit use `fg_hash git show`.
-* `fg_cherry` - Cherry picks the selected commits from the given branch
-  and the HEAD. The first parameter __must__ be a branch name.
-  * By default `--stat` is passed to `git log`. To get a different preview,
-    pass a custom flag, like `--oneline`.
+* `fg_cherry <branch name> [<git log option>...]` - Cherry picks the selected
+  commits from the given branch and the HEAD. The first parameter _must_ be a
+  branch name.
+
+> `<git log option>` - By default `--stat` is passed to `git log`. To get a
+different preview, pass a custom flag, like `--oneline`.
+
+### Finder
 
 Once `fzf` lists the available items, choose one or more (depending on the
 current operation) and confirm by pressing <kbd>ENTER</kbd>.
@@ -75,9 +77,17 @@ current operation) and confirm by pressing <kbd>ENTER</kbd>.
 default may vary depending on your `fzf` configuration.
 See [Configuration](#configuration) for further information.
 
-In short: usage does not differ from `fzf`: <kbd>TAB</kbd> to select,
-<kbd>Shift-TAB</kbd> to unselect, <kbd>Shift-PgUp/PgDown</kbd> to scroll in
-preview, and so on.
+In short: usage does not differ from the [keybindings][104] of the `fzf` finder:
+
+| Shortcut                     | Action            |
+| ---------------------------- | ----------------- |
+| <kbd>Tab</kbd>               | select            |
+| <kbd>Shift-Tab</kbd>         | unselect          |
+| <kbd>Enter</kbd>             | confirm selection |
+| <kbd>Shift-PgUp/PgDown</kbd> | scroll in preview |
+| <kbd>Ctrl-j/n</kbd>          | move cursor up    |
+| <kbd>Ctrl-k/p</kbd>          | move cursor down  |
+| <kbd>Ctrl-q/Esc</kbd>        | quit              |
 
 ### Interaction
 
@@ -203,3 +213,4 @@ issue please file a [new issue][1].
 [101]: https://github.com/sharkdp/bat
 [102]: https://github.com/dandavison/delta
 [103]: https://github.com/wfxr/forgit
+[104]: https://github.com/junegunn/fzf#using-the-finder
