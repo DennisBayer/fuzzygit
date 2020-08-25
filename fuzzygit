@@ -103,7 +103,7 @@ fuzzygit() {
 fg_switch() {
   fg_isGitRepo || return 1
 
-  local sanatize preview header item gitout
+  local sanatize preview header item
 
   # strip the two leading spaces ("* <branch>")
   sanatize="sed $FG_GIT_SWITCH_PATTERN"
@@ -126,8 +126,7 @@ fg_switch() {
 
   # switch to branch if any
   if [[ -n "$item" ]]; then
-    gitout="$(echo "$item" | xargs -I %branch git switch %branch) \
-      && fg_echo $gitout"
+    echo "$item" | xargs -I %branch git switch %branch
   else
     fg_echo "No branch has been selected."
   fi
@@ -139,7 +138,7 @@ fg_switch() {
 fg_add() {
   fg_isGitRepo || return 1
 
-  local sanatize preview header items gitout
+  local sanatize preview header items
 
   sanatize="sed $FG_GIT_STATUS_PATTERN"
 
@@ -179,8 +178,7 @@ fg_add() {
   # add files if any
   if [[ -n "$items" ]]; then
     #  add selected files to staging area; add single quote to escape whitespaces in file names
-    gitout="$(echo "$items" | xargs -t -I %itemsToAdd git add -- '%itemsToAdd') \
-      && fg_echo $gitout"
+    echo "$items" | xargs -t -I %itemsToAdd git add -- '%itemsToAdd'
   else
     fg_echo "No files have been selected."
   fi
@@ -193,7 +191,7 @@ fg_add() {
 fg_unstage() {
   fg_isGitRepo || return 1
 
-  local sanatize preview header items gitout
+  local sanatize preview header items
 
   sanatize="sed $FG_GIT_STATUS_PATTERN"
 
@@ -218,8 +216,7 @@ fg_unstage() {
   # add files if any
   if [[ -n "$items" ]]; then
     #  remove selected files from staging area; add single quote to escape whitespaces in file names
-    gitout="$(echo "$items" | xargs -t -I %itemsToUnstage git restore --staged -- '%itemsToUnstage') \
-      && fg_echo $gitout"
+    echo "$items" | xargs -t -I %itemsToUnstage git restore --staged -- '%itemsToUnstage'
   else
     fg_echo "No files have been selected."
   fi
@@ -232,7 +229,7 @@ fg_unstage() {
 fg_restore() {
   fg_isGitRepo || return 1
 
-  local sanatize preview header items gitout
+  local sanatize preview header items
 
   sanatize="sed $FG_GIT_STATUS_PATTERN"
 
@@ -257,8 +254,7 @@ fg_restore() {
   # add files if any
   if [[ -n "$items" ]]; then
     #  restore selected files from working directory; add single quote to escape whitespaces in file names
-    gitout="$(echo "$items" | xargs -t -I %itemsToRestore git restore -- '%itemsToRestore') \
-      && fg_echo $gitout"
+    echo "$items" | xargs -t -I %itemsToRestore git restore -- '%itemsToRestore'
   else
     fg_echo "No files have been selected."
   fi
