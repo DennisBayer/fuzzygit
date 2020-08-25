@@ -346,14 +346,14 @@ fg_cherry() {
   shift
 
   # show the highlighted commit with "--stats" option or the passed ones
-  preview="git log -1 ${@:-"--stat"} {1}"
+  preview="git log -1 ${*:-"--stat"} {1}"
 
   header="$(fg_header \
     "git cherry-pick -x <selected commits>" \
     "Cherry picks the selected commits.")"
 
   # show a short git log of the given branch
-  items="$(git log $branch "$FG_GIT_LOG_PRETTY_FORMAT" |
+  items="$(git log "$branch" "$FG_GIT_LOG_PRETTY_FORMAT" |
     fg_fzf --preview="$preview" --header="$header")"
 
   if [[ -n "$items" ]]; then
