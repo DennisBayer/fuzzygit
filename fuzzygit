@@ -120,7 +120,7 @@ fg_switch() {
     "Switch or checkout the branch.")"
 
   # get branches; single selection;
-  item="$(git branch -l "$@" |
+  item="$(git branch "${@:-"-l"}" |
     fg_fzf_single --preview="$preview" --header="$header" |
     sh -c "$sanatize")"
 
@@ -292,6 +292,7 @@ fg_flog() {
 
   local preview header item
 
+  # show the highlighted commit with "--stats" option or the passed ones
   preview="git log ${*:-"--stat"} -- {1}"
 
   header="$(fg_header \
@@ -317,7 +318,7 @@ fg_hash() {
 
   local preview header items
 
-  # show the highlighted commit with "--stats" option
+  # show the highlighted commit with "--stat" option
   preview="git log -1 --stat {1}"
 
   header="$(fg_header \
@@ -344,7 +345,7 @@ fg_cherry() {
   branch=$1
   shift
 
-  # show the highlighted commit with "--stats" option
+  # show the highlighted commit with "--stats" option or the passed ones
   preview="git log -1 ${@:-"--stat"} {1}"
 
   header="$(fg_header \
