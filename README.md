@@ -24,6 +24,8 @@ interest rather than typing.
   * [Finder](#finder)
   * [Interaction](#interaction)
   * [Configuration](#configuration)
+    * [Config File](#config-file)
+    * [fzf](#fzf)
 * [Install](#install)
   * [Dependencies](#dependencies)
 * [Version Overview](#version-overview)
@@ -108,9 +110,22 @@ workflow. Choose the one which suits you the most.
 
 ### Configuration
 
-`fuzzygit` itself does not provide any configuration at the moment. It also aims
-to alter your `fzf` configuration as litte as possible. For some features, like
-the preview, you might consider to set an option, e.g. a binding toggle.
+* `FUZZYGIT_IS_ECHO_STATUS=(true|false)` - [default: `true`] -
+  Toggle fuzzygit status infos.
+* `FUZZYGIT_IS_PREVIEW_SED=(true|false)` - [default: `true`] -
+  (experimantal) Use fzf patterns in preview instead of sed command.
+  Set to `true` if `$SHELL`, which is used in preview by fzf, cannot handle the
+  preview command. _Note:_ Some previews might not work as excpected.
+
+#### Config File
+
+The config file  `${XDG_CONFIG_HOME}/fuzzygit/config` will be respected.
+
+#### fzf
+
+`fuzzygit` aims to alter your `fzf` configuration as litte as possible.
+For some features, like the preview, you might consider to set an option,
+e.g. a binding toggle.
 
 Here's my current configuration as a starting point:
 
@@ -120,9 +135,9 @@ export FZF_DEFAULT_OPTS=" \
   --info=inline \
   --multi \
   --cycle \
+  --color=dark \
   --preview-window=right:60%:hidden \
   --preview '([[ -f {} ]] && (bat {} || less {})) || ([[ -d {} ]] && (lt {} -L2 | less)) || echo {} 2> /dev/null | head -200' \
-  --color=dark \
   --bind '?:toggle-preview' \
   --bind 'ctrl-a:select-all' \
   --bind 'ctrl-alt-a:deselect-all' \
