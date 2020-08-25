@@ -57,7 +57,7 @@ FG_GIT_SWITCH_PATTERN="'s/^..//'"
 #
 # Print a pretty log, e.g <hash> - <relative date> <commit message> - <author>
 #
-FG_GIT_LOG_PRETTY_FORMAT="--pretty=format:%h - (%ar) %C(bold)%s%C(reset) - %aN"
+FG_GIT_LOG_PRETTY_FORMAT="--pretty=format:%h - (%ar)%d %C(bold)%s%C(reset) - %aN"
 
 # -----------------------------------------------------------------------------
 # fzf functions
