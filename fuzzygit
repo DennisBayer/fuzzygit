@@ -340,6 +340,9 @@ fg_hash() {
   fi
 }
 
+#
+# Cherry picks the commits from the given branch into the current one.
+#
 fg_cherry() {
   fg_isGitRepo || return 1
   [[ "$#" -lt 1 ]] && fg_echo "No branch to show log for has been given." && return 1
@@ -360,7 +363,7 @@ fg_cherry() {
     fg_fzf --preview="$preview" --header="$header")"
 
   if [[ -n "$items" ]]; then
-    echo "$items" | awk '{print $1}' | xargs -t -I %commitHash% git cherry-pick -x %commitHash%
+    echo "$items" | awk '{print $1}' | tac | xargs -t -I %commitHash% git cherry-pick -x %commitHash%
   else
     fg_echo "No commit has been selected."
   fi
