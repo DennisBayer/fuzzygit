@@ -67,12 +67,11 @@ FG_GIT_LOG_PRETTY_FORMAT="--pretty=format:%h - (%ar)%d %C(bold)%s%C(reset) - %aN
 # -----------------------------------------------------------------------------
 
 fg_fzf() {
-  # --exact
-  fzf --cycle "$@"
+  fzf --cycle --layout=reverse --multi "$@"
 }
 
 fg_fzf_single() {
-  fzf --cycle +m "$@"
+  fzf --cycle --layout=reverse --no-multi "$@"
 }
 
 # -----------------------------------------------------------------------------
