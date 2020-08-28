@@ -289,6 +289,9 @@ fg_log() {
   fi
 }
 
+#
+# Shows the files of the current branch and the detailed log for the selected item.
+#
 fg_flog() {
   fg_isGitRepo || return 1
 
