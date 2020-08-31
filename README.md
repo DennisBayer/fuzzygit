@@ -115,6 +115,9 @@ workflow. Choose the one which suits you the most.
   (experimantal) Use fzf patterns in preview instead of sed command.
   Set to `true` if `$SHELL`, which is used in preview by fzf, cannot handle the
   preview command. _Note:_ Some previews might not work as excpected.
+* `FUZZYGIT_PREVIEW_GIT_LOG_OPTS` - [default: `--stat`] -
+  Set the options which are passed to `git log` when it is used in a preview
+  environment.
 
 #### Config File
 
@@ -176,10 +179,7 @@ $ fzf --version
 
 Some basic tools are required as well:
 
-* `awk`
-* `sed`
-* `xargs`
-* `printf`
+* `awk`, `sed`, `xargs`, `printf`, `tac`
 
 ## Version Overview
 

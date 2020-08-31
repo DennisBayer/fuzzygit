@@ -13,11 +13,12 @@
 [[ -f "${XDG_CONFIG_HOME}/fuzzygit/config" ]] && . "${XDG_CONFIG_HOME}/fuzzygit/config"
 
 # Fuzzygit config
-FUZZYGIT_IS_ECHO_STATUS="${FUZZYGIT_IS_ECHO_STATUS:-true}"
-FUZZYGIT_IS_PREVIEW_SED="${FUZZYGIT_IS_PREVIEW_SED:-true}"
+FUZZYGIT_IS_ECHO_STATUS=${FUZZYGIT_IS_ECHO_STATUS:-true}
+FUZZYGIT_IS_PREVIEW_SED=${FUZZYGIT_IS_PREVIEW_SED:-true}
 
 # Git config
 FG_VAR_GIT_PAGER=$(git config core.pager)
+FG_VAR_PREVIEW_GIT_LOG_OPTS=${FUZZYGIT_PREVIEW_GIT_LOG_OPTS:-"--stat"}
 
 # -----------------------------------------------------------------------------
 # Utility functions
@@ -121,7 +122,6 @@ fg_switch() {
     "git switch <selected branch>" \
     "Switch or checkout the branch.")"
 
-  # get branches; single selection;
   item="$(git branch "${@:-"-l"}" |
     fg_fzf_single --preview="$preview" --header="$header" |
     sh -c "$sanatize")"
@@ -270,20 +270,18 @@ fg_log() {
 
   local preview header item
 
-  # show the highlighted commit with "--stats" option
-  preview="git log -1 ${*:-"--stat"} {1}"
+  preview="git log -1 ${*:-$FG_VAR_PREVIEW_GIT_LOG_OPTS} {1}"
 
   header="$(fg_header \
     "git log --stat <selected commit>^..HEAD" \
     "Shows the log starting with the selected commit up until HEAD.")"
 
-  # show a short git log
   item="$(git log "$FG_GIT_LOG_PRETTY_FORMAT" |
     fg_fzf_single --preview="$preview" --header="$header")"
 
   # show the commit log between the selected commit and the current head
   if [[ -n "$item" ]]; then
-    echo "$item" | awk '{print $1}' | xargs -t -I %commitHash% git log "${@:-"--stat"}" %commitHash%^..HEAD
+    echo "$item" | awk '{print $1}' | xargs -t -I %commitHash% git log "${@:-$FG_VAR_PREVIEW_GIT_LOG_OPTS}" %commitHash%^..HEAD
   else
     fg_echo "No commit has been selected."
   fi
@@ -297,8 +295,7 @@ fg_flog() {
 
   local preview header item
 
-  # show the highlighted commit with "--stats" option or the passed ones
-  preview="git log ${*:-"--stat"} -- {1}"
+  preview="git log ${*:-$FG_VAR_PREVIEW_GIT_LOG_OPTS} -- {1}"
 
   header="$(fg_header \
     "git log <selected item>" \
@@ -308,7 +305,7 @@ fg_flog() {
     fg_fzf_single --preview="$preview" --header="$header")"
 
   if [[ -n "$item" ]]; then
-    echo "$item" | xargs -t -I %item git log "${@:-"--stat"}" -- %item
+    echo "$item" | xargs -t -I %item git log "${@:-$FG_VAR_PREVIEW_GIT_LOG_OPTS}" -- %item
   else
     fg_echo "No item has been selected."
   fi
@@ -323,14 +320,14 @@ fg_hash() {
 
   local preview header items
 
-  # show the highlighted commit with "--stat" option
-  preview="git log -1 --stat {1}"
+  # As for now no log opts can be passed externally, because hash uses arguments 
+  # to control execution.
+  preview="git log -1 $FG_VAR_PREVIEW_GIT_LOG_OPTS {1}"
 
   header="$(fg_header \
     "\"\$@\" <selected commit>" \
     "Passes the selected commit to whatever was given as an argument.")"
 
-  # show a short git log
   items="$(git log "$FG_GIT_LOG_PRETTY_FORMAT" |
     fg_fzf --preview="$preview" --header="$header")"
 
@@ -350,17 +347,16 @@ fg_cherry() {
   [[ "$#" -lt 1 ]] && fg_echo "No branch to show log for has been given." && return 1
 
   local branch preview header items
+
   branch=$1
   shift
 
-  # show the highlighted commit with "--stats" option or the passed ones
-  preview="git log -1 ${*:-"--stat"} {1}"
+  preview="git log -1 ${*:-$FG_VAR_PREVIEW_GIT_LOG_OPTS} {1}"
 
   header="$(fg_header \
     "git cherry-pick -x <selected commits>" \
     "Cherry picks the selected commits.")"
 
-  # show a short git log of the given branch
   items="$(git log "$branch" "$FG_GIT_LOG_PRETTY_FORMAT" |
     fg_fzf --preview="$preview" --header="$header")"
 
