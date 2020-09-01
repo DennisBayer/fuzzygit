@@ -1,5 +1,9 @@
 <p align="center">
-  <img src="/docs/assets/images/fuzzygit.png" alt="fuzzygit banner" />
+  <img src="/docs/assets/images/fuzzygit.png" alt="fuzzygit banner" /><br>
+  <img alt="GitHub" src="https://img.shields.io/github/license/DennisBayer/fuzzygit">
+  <img alt="GitHub release (latest SemVer)" src="https://img.shields.io/github/v/release/DennisBayer/fuzzygit?sort=semver">  
+  <img alt="GitHub release (latest SemVer including pre-releases)" src="https://img.shields.io/github/v/release/DennisBayer/fuzzygit?include_prereleases&label=pre-release&sort=semver">
+  <img alt="GitHub issues" src="https://img.shields.io/github/issues/DennisBayer/fuzzygit"> 
 </p>
 
 # fuzzygit
@@ -183,8 +187,7 @@ Some basic tools are required as well:
 
 ## Version Overview
 
-The current version is `prototype`. As soon as a second person has successfully
-tested this version, a release of `0.1.0` is planned.
+* `0.1.0-beta.1` - Initial release with a basic feature set.
 
 Whether there will be a roadmap or issue list is a pending matter.
 
