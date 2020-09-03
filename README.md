@@ -3,7 +3,7 @@
   <img alt="GitHub" src="https://img.shields.io/github/license/DennisBayer/fuzzygit">
   <img alt="GitHub release (latest SemVer)" src="https://img.shields.io/github/v/release/DennisBayer/fuzzygit?sort=semver">  
   <img alt="GitHub release (latest SemVer including pre-releases)" src="https://img.shields.io/github/v/release/DennisBayer/fuzzygit?include_prereleases&label=pre-release&sort=semver">
-  <img alt="GitHub issues" src="https://img.shields.io/github/issues/DennisBayer/fuzzygit"> 
+  <img alt="GitHub issues" src="https://img.shields.io/github/issues/DennisBayer/fuzzygit">
 </p>
 
 # fuzzygit
@@ -20,9 +20,8 @@ interest rather than typing.
   <img src="/docs/assets/images/fuzzygit-demo.gif" width="800" height="450" alt="fuzzygit demo" />
 </p>
 
-## Table of Contents
+## Table of Contents <!-- omit in toc -->
 
-* [Table of Contents](#table-of-contents)
 * [Background](#background)
 * [Usage](#usage)
   * [Finder](#finder)
@@ -50,7 +49,7 @@ in the [Credits](#credits) section.
 
 The following features are available:
 
-* `fuzzygit <functionName> [<args..>]`  - Invokes one of the functions, if an 
+* `fuzzygit <functionName> [<args..>]`  - Invokes one of the functions, if an
   argument is passed.
   * E.g. `fuzzygit add` or `fuzzygit hash git show`.
 * `fg_switch [-r]` - Shows a list of branches and switches to the selected one.
@@ -202,6 +201,9 @@ Whether there will be a roadmap or issue list is a pending matter.
 * [forgit][103] - "A utility tool powered by fzf for using git interactively."
   Does basically the same as `fuzzygit`, but did not fit my workflow at the time
   I discovered it.
+* [git-fuzzy][105] - "interactive `git` with the help of `fzf`". Another idea
+  of combining Git and fzf. Hava a look, if you're looking for a more visual 
+  approach.
 
 ### Useful Third-Party Tools
 
@@ -232,3 +234,4 @@ issue please file a [new issue][1].
 [102]: https://github.com/dandavison/delta
 [103]: https://github.com/wfxr/forgit
 [104]: https://github.com/junegunn/fzf#using-the-finder
+[105]: https://github.com/bigH/git-fuzzy
