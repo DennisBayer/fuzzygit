@@ -50,7 +50,8 @@ in the [Credits](#credits) section.
 
 The following features are available:
 
-* `fuzzygit <functionName> [<args..>]`  - Invokes one of the functions, if an argument is passed.
+* `fuzzygit <functionName> [<args..>]`  - Invokes one of the functions, if an 
+  argument is passed.
   * E.g. `fuzzygit add` or `fuzzygit hash git show`.
 * `fg_switch [-r]` - Shows a list of branches and switches to the selected one.
   * By default only local branches are shown. To get a list of remote branches,
@@ -77,7 +78,7 @@ different preview, pass a custom flag, like `--oneline`.
 ### Finder
 
 Once `fzf` lists the available items, choose one or more (depending on the
-current operation) and confirm by pressing <kbd>ENTER</kbd>.
+current operation) and confirm by pressing <kbd>Enter</kbd>.
 
 > _Note:_ If possible, a preview is available. Whether the preview is shown by
 default may vary depending on your `fzf` configuration.
@@ -116,9 +117,9 @@ workflow. Choose the one which suits you the most.
 * `FUZZYGIT_IS_ECHO_STATUS=(true|false)` - [default: `true`] -
   Toggle fuzzygit status infos.
 * `FUZZYGIT_IS_PREVIEW_SED=(true|false)` - [default: `true`] -
-  (experimantal) Use fzf patterns in preview instead of sed command.
+  (experimental) Use fzf patterns in preview instead of sed command.
   Set to `true` if `$SHELL`, which is used in preview by fzf, cannot handle the
-  preview command. _Note:_ Some previews might not work as excpected.
+  preview command. _Note:_ Some previews might not work as expected.
 * `FUZZYGIT_PREVIEW_GIT_LOG_OPTS` - [default: `--stat`] -
   Set the options which are passed to `git log` when it is used in a preview
   environment.
@@ -129,7 +130,7 @@ The config file  `${XDG_CONFIG_HOME}/fuzzygit/config` will be respected.
 
 #### fzf
 
-`fuzzygit` aims to alter your `fzf` configuration as litte as possible.
+`fuzzygit` aims to alter your `fzf` configuration as little as possible.
 For some features, like the preview, you might consider to set an option,
 e.g. a binding toggle.
 
