@@ -221,7 +221,7 @@ time.
 
 But if you would like to contribute either by submitting a bugfix or propose a
 new feature, feel free to do so. To get in touch and not to lose track of the
-issue please file a [new issue][1]. See [CONRIBUTUNG](docs/CONTRIBUTING.md)
+issue please file a [new issue][1]. See [CONTRIBUTING](docs/CONTRIBUTING.md).
 
 ## License
 
