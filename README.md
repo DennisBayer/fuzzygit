@@ -202,7 +202,7 @@ Whether there will be a roadmap or issue list is a pending matter.
   Does basically the same as `fuzzygit`, but did not fit my workflow at the time
   I discovered it.
 * [git-fuzzy][105] - "interactive `git` with the help of `fzf`". Another idea
-  of combining Git and fzf. Hava a look, if you're looking for a more visual 
+  of combining Git and fzf. Hava a look, if you're looking for a more visual
   approach.
 
 ### Useful Third-Party Tools
@@ -221,7 +221,7 @@ time.
 
 But if you would like to contribute either by submitting a bugfix or propose a
 new feature, feel free to do so. To get in touch and not to lose track of the
-issue please file a [new issue][1].
+issue please file a [new issue][1]. See [CONRIBUTUNG](docs/CONTRIBUTING.md)
 
 ## License
 
