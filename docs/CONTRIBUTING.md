@@ -57,8 +57,9 @@ Your PR...
 * ...aligns with the existing code formatting.
 * ...is well tested (e.g. can handle with various file name pitfalls).
 * ...updates the documentation as well, if there are any API changes.
-* ...is linked to an issue. See in [GitHub documentation][100] for further
+* ...is linked to an issue. See [GitHub documentation][100] for further
   information.
+* ...follows the Git [commit message conventions][101].
 
 #### Forking
 
@@ -87,3 +88,4 @@ but consider double checking your input.
 [0]: https://github.com/DennisBayer/fuzzygit
 [1]: https://github.com/DennisBayer/fuzzygit/issues/new/choose
 [100]: https://docs.github.com/en/github/managing-your-work-on-github/linking-a-pull-request-to-an-issue
+[101]: https://chris.beams.io/posts/git-commit/
