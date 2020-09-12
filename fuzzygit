@@ -9,6 +9,9 @@
 # fuzzygit - marry git and fzf
 #
 
+# Load completion, if available
+[[ -f "./fuzzygit-completion" ]] && source "./fuzzygit-completion"
+
 # shellcheck source=/dev/null
 [[ -f "${XDG_CONFIG_HOME}/fuzzygit/config" ]] && . "${XDG_CONFIG_HOME}/fuzzygit/config"
 
