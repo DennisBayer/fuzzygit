@@ -441,6 +441,12 @@ fg_help() {
     the preview command. _Note:_ Some previews might not work as expected."
   printf "  %s\n\n" "$envVarPreviewSed"
 
+  local envVarLogPretty="FUZZYGIT_GIT_LOG_PRETTY_FORMAT - 
+    [default: --pretty=format:%h - (%ar) %C(bold)%s%C(reset) - %aN%d]
+    Set the pretty format to use when 'git log' is used in list of available
+    items."
+  printf "  %s\n\n" "$envVarLogPretty"
+
   printf "%s\n\n" "For further information see README.md or visit:
     <https://github.com/DennisBayer/fuzzygit>"
 }
