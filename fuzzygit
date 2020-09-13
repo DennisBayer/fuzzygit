@@ -9,6 +9,9 @@
 # fuzzygit - marry git and fzf
 #
 
+# Load completion, if available
+[[ -f "./fuzzygit-completion" ]] && source "./fuzzygit-completion"
+
 # shellcheck source=/dev/null
 [[ -f "${XDG_CONFIG_HOME}/fuzzygit/config" ]] && . "${XDG_CONFIG_HOME}/fuzzygit/config"
 
@@ -86,10 +89,12 @@ fg_fzf_single() {
 fuzzygit() {
   fg_isGitRepo || return 1
 
-  if [[ "$#" -ne 0 ]]; then
+  if [[ "$#" -eq 1 && "$1" == "--help" ]]; then
+    fg_help
+  elif [[ "$#" -ne 0 ]]; then
     fg_"$1" "${@:2:($#-1)}"
   else
-    fg_echo "No argument was given, e.g: \"fg add\"."
+    fg_help
   fi
 }
 
@@ -363,4 +368,79 @@ fg_cherry() {
   else
     fg_echo "No commit has been selected."
   fi
+}
+
+#
+# Prints a help summary.
+#
+fg_help() {
+  printf "%s\n\n" "Usage: fuzzygit <function> [<args..>]"
+
+  local fuzzygitUsage="fuzzygit <function> [<args..>]
+    Invokes one of the functions, if an argument is passed.
+    E.g. 'fuzzygit add' or 'fuzzygit hash git show'"
+  printf "  %s\n\n" "$fuzzygitUsage"
+
+  printf "\n%s\n\n" "Functions:"
+
+  local addUsage="add
+    Shows a list of files which can be added to the staging area."
+  printf "  %s\n\n" "$addUsage"
+
+  local cherryUsage="cherry <branch name> [<git log option>...]
+    Cherry picks the selected commits from the given branch and the HEAD. The
+    first parameter _must_ be a branch name."
+  printf "  %s\n\n" "$cherryUsage"
+
+  local flogUsage="flog [<git log option>...]
+    Lists all items of the git tree and shows the log of the selected item."
+  printf "  %s\n\n" "$flogUsage"
+
+  local hashUsage="hash <command for hash>
+    Shows the commit history and passes the hashes of the selected entries to
+    the command which was given as an argument. E.g. to get detailed information
+    about a commit use 'fuzzygit hash git show'."
+  printf "  %s\n\n" "$hashUsage"
+
+  local logUsage="log [<git log option>...]
+    Shows the commit history and shows the log between the selected one and the
+    HEAD."
+  printf "  %s\n\n" "$logUsage"
+
+  local unstageUsage="unstage
+    Shows the list of files which are in the staging area (aka added files) and
+    puts them back into the working area."
+  printf "  %s\n\n" "$unstageUsage"
+
+  local restoreUsage="restore
+    Shows the list of files in the working area (aka modified files) and
+    restores the version from the local repository."
+  printf "  %s\n\n" "$restoreUsage"
+
+  local switchUsage="switch [-r]
+    Shows a list of branches and switches to the selected one.
+    By default only local branches are shown. To get a list of remote branches,
+    pass '-r' as an argument."
+  printf "  %s\n\n" "$switchUsage"
+
+  printf "\n%s\n\n" "Environment Variables:
+    (Config file '\${XDG_CONFIG_HOME}/fuzzygit/config' will be respected.)"
+
+  local envVarEcho="FUZZYGIT_IS_ECHO_STATUS=(true|false) - [default: true]
+    Toggle fuzzygit status infos."
+  printf "  %s\n\n" "$envVarEcho"
+
+  local envVarPreviewGitLog="FUZZYGIT_PREVIEW_GIT_LOG_OPTS - [default: --stat]
+    Set the options which are passed to 'git log' when it is used in a preview
+    environment."
+  printf "  %s\n\n" "$envVarPreviewGitLog"
+
+  local envVarPreviewSed="FUZZYGIT_IS_PREVIEW_SED=(true|false) - [default: true]
+    (experimental) Use fzf patterns in preview instead of sed command.
+    Set to 'true' if \$SHELL, which is used in preview by fzf, cannot handle
+    the preview command. _Note:_ Some previews might not work as expected."
+  printf "  %s\n\n" "$envVarPreviewSed"
+
+  printf "%s\n\n" "For further information see README.md or visit:
+    <https://github.com/DennisBayer/fuzzygit>"
 }
