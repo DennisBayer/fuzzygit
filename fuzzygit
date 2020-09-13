@@ -16,8 +16,8 @@
 [[ -f "${XDG_CONFIG_HOME}/fuzzygit/config" ]] && . "${XDG_CONFIG_HOME}/fuzzygit/config"
 
 # Fuzzygit config
-FUZZYGIT_IS_ECHO_STATUS=${FUZZYGIT_IS_ECHO_STATUS:-true}
-FUZZYGIT_IS_PREVIEW_SED=${FUZZYGIT_IS_PREVIEW_SED:-true}
+FG_IS_ECHO_STATUS=${FUZZYGIT_IS_ECHO_STATUS:-true}
+FG_IS_PREVIEW_SED=${FUZZYGIT_IS_PREVIEW_SED:-true}
 FG_GIT_LOG_PRETTY_FORMAT=${FUZZYGIT_GIT_LOG_PRETTY_FORMAT:-"--pretty=format:%h - (%ar) %C(bold)%s%C(reset) - %aN%d"}
 
 # Git config
@@ -33,7 +33,7 @@ fg_isGitRepo() {
 }
 
 fg_echo() {
-  [ "$FUZZYGIT_IS_ECHO_STATUS" != true ] && return 0;
+  [ "$FG_IS_ECHO_STATUS" != true ] && return 0;
 
   if [[ "$#" -ne 0 ]]; then
     #echo "$@" | xargs -r echo
@@ -113,7 +113,7 @@ fg_switch() {
   sanatize="sed $FG_GIT_SWITCH_PATTERN"
 
   # get log of branches
-  if [[ "$FUZZYGIT_IS_PREVIEW_SED" = true ]]; then
+  if [[ "$FG_IS_PREVIEW_SED" = true ]]; then
     preview="git log '$FG_GIT_LOG_PRETTY_FORMAT' \$($sanatize <<< {})"
   else
     preview="git log '$FG_GIT_LOG_PRETTY_FORMAT' {1}"
@@ -146,7 +146,7 @@ fg_add() {
   sanatize="sed $FG_GIT_STATUS_PATTERN"
 
   # check if file is untracked; show pager in preview accordingly
-  if [[ "$FUZZYGIT_IS_PREVIEW_SED" = true ]]; then
+  if [[ "$FG_IS_PREVIEW_SED" = true ]]; then
     preview="item=\$($sanatize <<< {})
       if (git status -s -- \"\$item\" | grep '^??') &>/dev/null; then
           # diff with /dev/null for untracked files
@@ -199,7 +199,7 @@ fg_unstage() {
   sanatize="sed $FG_GIT_STATUS_PATTERN"
 
   # show diff in pager
-  if [[ "$FUZZYGIT_IS_PREVIEW_SED" = true ]]; then
+  if [[ "$FG_IS_PREVIEW_SED" = true ]]; then
     preview="item=\$($sanatize <<< {})
       git diff --staged -- \"\$item\" | $FG_VAR_GIT_PAGER"
   else 
@@ -237,7 +237,7 @@ fg_restore() {
   sanatize="sed $FG_GIT_STATUS_PATTERN"
 
   # show diff in pager
-  if [[ "$FUZZYGIT_IS_PREVIEW_SED" = true ]]; then
+  if [[ "$FG_IS_PREVIEW_SED" = true ]]; then
     preview="item=\$($sanatize <<< {})
       git diff -- \"\$item\" | $FG_VAR_GIT_PAGER"
   else
