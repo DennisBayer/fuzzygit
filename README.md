@@ -122,6 +122,9 @@ workflow. Choose the one which suits you the most.
 * `FUZZYGIT_PREVIEW_GIT_LOG_OPTS` - [default: `--stat`] -
   Set the options which are passed to `git log` when it is used in a preview
   environment.
+* `FUZZYGIT_GIT_LOG_PRETTY_FORMAT` - [default: `--pretty=format:%h - (%ar)
+  %C(bold)%s%C(reset) - %aN%`] -
+  Set the pretty log format for `git log`.
 
 #### Config File
 

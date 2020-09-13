@@ -15,6 +15,7 @@
 # Fuzzygit config
 FUZZYGIT_IS_ECHO_STATUS=${FUZZYGIT_IS_ECHO_STATUS:-true}
 FUZZYGIT_IS_PREVIEW_SED=${FUZZYGIT_IS_PREVIEW_SED:-true}
+FG_GIT_LOG_PRETTY_FORMAT=${FUZZYGIT_GIT_LOG_PRETTY_FORMAT:-"--pretty=format:%h - (%ar) %C(bold)%s%C(reset) - %aN%d"}
 
 # Git config
 FG_VAR_GIT_PAGER=$(git config core.pager)
@@ -57,11 +58,6 @@ FG_GIT_STATUS_PATTERN="'s/^...//; s/.*->.//; s/\"//g'"
 # Strip the two leading spaces ("* <branch>")
 #
 FG_GIT_SWITCH_PATTERN="'s/^..//'"
-
-#
-# Print a pretty log, e.g <hash> - <relative date> <commit message> - <author>
-#
-FG_GIT_LOG_PRETTY_FORMAT="--pretty=format:%h - (%ar)%d %C(bold)%s%C(reset) - %aN"
 
 # -----------------------------------------------------------------------------
 # fzf functions
