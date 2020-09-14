@@ -87,11 +87,11 @@ fg_fzf_single() {
 # `fg hash git show` will call `fg_hash git show`.
 #
 fuzzygit() {
-  fg_isGitRepo || return 1
+  [[ "$#" -eq 0 || "$#" -eq 1 && "$1" == "--help" ]] && { fg_help; return 0; }
 
-  if [[ "$#" -eq 1 && "$1" == "--help" ]]; then
-    fg_help
-  elif [[ "$#" -ne 0 ]]; then
+  fg_isGitRepo || { echo "No git repository found."; return 1; }
+
+  if [[ "$#" -ne 0 ]]; then
     fg_"$1" "${@:2:($#-1)}"
   else
     fg_help
