@@ -1,9 +1,9 @@
 # Contributing to [fuzzygit][0]
 
-👍🎉 First off, thanks for considering to contribute! 🎉👍
+👍🎉 First off, thanks for considering contributing! 🎉👍
 
-Despite being _only_ my spare time project at the moment, I'd appreciate any
-feedback.
+Despite fuzzygit is _only_ my spare time project at the moment, I'd appreciate
+any feedback.
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -20,9 +20,9 @@ feedback.
 `fuzzygit` does not aim to be the all-inclusive package regarding the cli usage
 of Git. It rather tries to be a lean and clean helper for the everyday usage.
 
-Codewise it focuses on principles like KISS (keep it simple) and YAGNI (you
-ain't gonna need it). This means, that a 80% solution is absolutely fine, as
-long as it adds some value for the user.
+Codewise it focuses on principles like KISS (keep it simple, stupid) and YAGNI
+(you ain't gonna need it). This means, that an 80% solution is absolutely fine,
+as long as it adds some value for the user.
 
 On the feature side, I'd like to apply the KISS principle as well. Let's be
 honest: who pays attention to a cluttered GUI doing an operation several times
@@ -39,13 +39,13 @@ understand the bug and avoids unnecessary round-trips.
 
 ### Suggest a new Feature
 
-At the moment `fuzzygit` is tailored to my needs, but I'm open minded for
+At the moment `fuzzygit` is tailored to my needs, but I'm open-minded for
 suggestions which fit in the scope of this project (see above). A
 [feature template][1] is also available.
 
 ### Submitting a Pull Request
 
-In general I recommend filing an issue in first place to discuss your request.
+In general, I recommend filing an issue in first place to discuss your request.
 This increases the likelihood that the PR will be accepted later on. In the
 worst case you are about to save your valuable time. 😉
 
@@ -83,7 +83,7 @@ uses. See [LICENSE](../LICENSE).
 Last but not least: Be kind and prudent to each other (you know, language
 barriers, level of experience and so on 😄). We all spend our free time and
 keeping the fun in it is a major point for me. Everyone might have a bad day,
-but consider double checking your input.
+but consider double checking your phrasing.
 
 [0]: https://github.com/DennisBayer/fuzzygit
 [1]: https://github.com/DennisBayer/fuzzygit/issues/new/choose

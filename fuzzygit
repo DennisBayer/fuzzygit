@@ -9,12 +9,16 @@
 # fuzzygit - marry git and fzf
 #
 
+# Load completion, if available
+[[ -f "./fuzzygit-completion" ]] && source "./fuzzygit-completion"
+
 # shellcheck source=/dev/null
 [[ -f "${XDG_CONFIG_HOME}/fuzzygit/config" ]] && . "${XDG_CONFIG_HOME}/fuzzygit/config"
 
 # Fuzzygit config
-FUZZYGIT_IS_ECHO_STATUS=${FUZZYGIT_IS_ECHO_STATUS:-true}
-FUZZYGIT_IS_PREVIEW_SED=${FUZZYGIT_IS_PREVIEW_SED:-true}
+FG_IS_ECHO_STATUS=${FUZZYGIT_IS_ECHO_STATUS:-true}
+FG_IS_PREVIEW_SED=${FUZZYGIT_IS_PREVIEW_SED:-true}
+FG_GIT_LOG_PRETTY_FORMAT=${FUZZYGIT_GIT_LOG_PRETTY_FORMAT:-"--pretty=format:%h - (%ar) %C(bold)%s%C(reset) - %aN%d"}
 
 # Git config
 FG_VAR_GIT_PAGER=$(git config core.pager)
@@ -29,7 +33,7 @@ fg_isGitRepo() {
 }
 
 fg_echo() {
-  [ "$FUZZYGIT_IS_ECHO_STATUS" != true ] && return 0;
+  [ "$FG_IS_ECHO_STATUS" != true ] && return 0;
 
   if [[ "$#" -ne 0 ]]; then
     #echo "$@" | xargs -r echo
@@ -58,11 +62,6 @@ FG_GIT_STATUS_PATTERN="'s/^...//; s/.*->.//; s/\"//g'"
 #
 FG_GIT_SWITCH_PATTERN="'s/^..//'"
 
-#
-# Print a pretty log, e.g <hash> - <relative date> <commit message> - <author>
-#
-FG_GIT_LOG_PRETTY_FORMAT="--pretty=format:%h - (%ar)%d %C(bold)%s%C(reset) - %aN"
-
 # -----------------------------------------------------------------------------
 # fzf functions
 # -----------------------------------------------------------------------------
@@ -88,12 +87,14 @@ fg_fzf_single() {
 # `fg hash git show` will call `fg_hash git show`.
 #
 fuzzygit() {
-  fg_isGitRepo || return 1
+  [[ "$#" -eq 0 || "$#" -eq 1 && "$1" == "--help" ]] && { fg_help; return 0; }
+
+  fg_isGitRepo || { echo "No git repository found."; return 1; }
 
   if [[ "$#" -ne 0 ]]; then
     fg_"$1" "${@:2:($#-1)}"
   else
-    fg_echo "No argument was given, e.g: \"fg add\"."
+    fg_help
   fi
 }
 
@@ -112,7 +113,7 @@ fg_switch() {
   sanatize="sed $FG_GIT_SWITCH_PATTERN"
 
   # get log of branches
-  if [[ "$FUZZYGIT_IS_PREVIEW_SED" = true ]]; then
+  if [[ "$FG_IS_PREVIEW_SED" = true ]]; then
     preview="git log '$FG_GIT_LOG_PRETTY_FORMAT' \$($sanatize <<< {})"
   else
     preview="git log '$FG_GIT_LOG_PRETTY_FORMAT' {1}"
@@ -145,7 +146,7 @@ fg_add() {
   sanatize="sed $FG_GIT_STATUS_PATTERN"
 
   # check if file is untracked; show pager in preview accordingly
-  if [[ "$FUZZYGIT_IS_PREVIEW_SED" = true ]]; then
+  if [[ "$FG_IS_PREVIEW_SED" = true ]]; then
     preview="item=\$($sanatize <<< {})
       if (git status -s -- \"\$item\" | grep '^??') &>/dev/null; then
           # diff with /dev/null for untracked files
@@ -198,7 +199,7 @@ fg_unstage() {
   sanatize="sed $FG_GIT_STATUS_PATTERN"
 
   # show diff in pager
-  if [[ "$FUZZYGIT_IS_PREVIEW_SED" = true ]]; then
+  if [[ "$FG_IS_PREVIEW_SED" = true ]]; then
     preview="item=\$($sanatize <<< {})
       git diff --staged -- \"\$item\" | $FG_VAR_GIT_PAGER"
   else 
@@ -236,7 +237,7 @@ fg_restore() {
   sanatize="sed $FG_GIT_STATUS_PATTERN"
 
   # show diff in pager
-  if [[ "$FUZZYGIT_IS_PREVIEW_SED" = true ]]; then
+  if [[ "$FG_IS_PREVIEW_SED" = true ]]; then
     preview="item=\$($sanatize <<< {})
       git diff -- \"\$item\" | $FG_VAR_GIT_PAGER"
   else
@@ -367,4 +368,114 @@ fg_cherry() {
   else
     fg_echo "No commit has been selected."
   fi
+}
+
+# -----------------------------------------------------------------------------
+# Command Line Completions
+# -----------------------------------------------------------------------------
+
+FG_COMPLETION_WORDS=("add" "cherry" "flog" "hash" "log" "restore" "switch" "unstage")
+
+_fg_completions_bash() {
+  local IFS=$' \t\n'
+
+  if [[ "${#COMP_WORDS[@]}" -ne "2" ]]; then
+    return
+  fi
+
+  # shellcheck disable=SC2207
+  COMPREPLY=( $(compgen -o default -W "${FG_COMPLETION_WORDS[*]}" -- "${COMP_WORDS[1]}") )
+}
+
+[[ -n "$BASH" ]] && complete -F _fg_completions_bash fuzzygit
+
+_fg_completions_zsh() {
+  if [[ "${CURRENT}" -ne "2" ]]; then
+    return
+  fi
+
+  compadd -a FG_COMPLETION_WORDS
+}
+
+[[ -n "$ZSH_NAME" ]] && compdef _fg_completions_zsh fuzzygit
+
+#
+# Prints a help summary.
+#
+fg_help() {
+  printf "%s\n\n" "Usage: fuzzygit <function> [<args..>]"
+
+  local fuzzygitUsage="fuzzygit <function> [<args..>]
+    Invokes one of the functions, if an argument is passed.
+    E.g. 'fuzzygit add' or 'fuzzygit hash git show'"
+  printf "  %s\n\n" "$fuzzygitUsage"
+
+  printf "\n%s\n\n" "Functions:"
+
+  local addUsage="add
+    Shows a list of files which can be added to the staging area."
+  printf "  %s\n\n" "$addUsage"
+
+  local cherryUsage="cherry <branch name> [<git log option>...]
+    Cherry picks the selected commits from the given branch and the HEAD. The
+    first parameter _must_ be a branch name."
+  printf "  %s\n\n" "$cherryUsage"
+
+  local flogUsage="flog [<git log option>...]
+    Lists all items of the git tree and shows the log of the selected item."
+  printf "  %s\n\n" "$flogUsage"
+
+  local hashUsage="hash <command for hash>
+    Shows the commit history and passes the hashes of the selected entries to
+    the command which was given as an argument. E.g. to get detailed information
+    about a commit use 'fuzzygit hash git show'."
+  printf "  %s\n\n" "$hashUsage"
+
+  local logUsage="log [<git log option>...]
+    Shows the commit history and shows the log between the selected one and the
+    HEAD."
+  printf "  %s\n\n" "$logUsage"
+
+  local unstageUsage="unstage
+    Shows the list of files which are in the staging area (aka added files) and
+    puts them back into the working area."
+  printf "  %s\n\n" "$unstageUsage"
+
+  local restoreUsage="restore
+    Shows the list of files in the working area (aka modified files) and
+    restores the version from the local repository."
+  printf "  %s\n\n" "$restoreUsage"
+
+  local switchUsage="switch [-r]
+    Shows a list of branches and switches to the selected one.
+    By default only local branches are shown. To get a list of remote branches,
+    pass '-r' as an argument."
+  printf "  %s\n\n" "$switchUsage"
+
+  printf "\n%s\n\n" "Environment Variables:
+    (Config file '\${XDG_CONFIG_HOME}/fuzzygit/config' will be respected.)"
+
+  local envVarEcho="FUZZYGIT_IS_ECHO_STATUS=(true|false) - [default: true]
+    Toggle fuzzygit status infos."
+  printf "  %s\n\n" "$envVarEcho"
+
+  local envVarPreviewGitLog="FUZZYGIT_PREVIEW_GIT_LOG_OPTS - [default: --stat]
+    Set the options which are passed to 'git log' when it is used in a preview
+    environment."
+  printf "  %s\n\n" "$envVarPreviewGitLog"
+
+  local envVarPreviewSed="FUZZYGIT_IS_PREVIEW_SED=(true|false) - [default: true]
+    (experimental) Use fzf patterns in preview instead of sed command.
+    Set to 'true' if \$SHELL, which is used in preview by fzf, cannot handle
+    the preview command. _Note:_ Some previews might not work as expected."
+  printf "  %s\n\n" "$envVarPreviewSed"
+
+  local envVarLogPretty="FUZZYGIT_GIT_LOG_PRETTY_FORMAT - 
+    [default: --pretty=format:%h - (%ar) %C(bold)%s%C(reset) - %aN%d]
+    Set the pretty format to use when 'git log' is used in list of available
+    items."
+  printf "  %s\n\n" "$envVarLogPretty"
+
+  printf "%s\n\n" "For further information see README.md or visit:
+    <https://github.com/DennisBayer/fuzzygit>"
 }
