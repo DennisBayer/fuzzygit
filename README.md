@@ -40,7 +40,7 @@ interest rather than typing.
 
 ## Background
 
-This project started as a personal helper. Additionally I wanted to improve my
+This project started as a personal helper. Additionally, I wanted to improve my
 basic bash & Linux skills. There might be projects which provide the same
 (or even better) functionality. Some of them - which I'm aware of - are listed
 in the [Credits](#credits) section.
@@ -52,24 +52,25 @@ The following features are available:
 * `fuzzygit <functionName> [<args..>]`  - Invokes one of the functions, if an
   argument is passed.
   * E.g. `fuzzygit add` or `fuzzygit hash git show`.
-* `fg_switch [-r]` - Shows a list of branches and switches to the selected one.
-  * By default only local branches are shown. To get a list of remote branches,
-  pass `-r` as an argument.
-* `fg_add` - Shows a list of files which can be added to the staging area.
-* `fg_unstage` - Shows the list of files which are in the staging area (aka
-  added files) and puts them back into the working area.
-* `fg_restore` - Show the list of files in the working area (aka modified files)
-  and restores the version from the local repository.
-* `fg_log [<git log option>...]` - Shows the commit history and shows the log
-  between the selected one and the HEAD.
-* `fg_flog [<git log option>...]` - Lists all items of the git tree and shows
-  the log of the selected item.
-* `fg_hash <command for hash>` - Shows the commit history and passes the hashes
-  of the selected entries to the command which was given as an argument.
-  * E.g. to get detailed information about a commit use `fg_hash git show`.
-* `fg_cherry <branch name> [<git log option>...]` - Cherry picks the selected
+  * `--help` - Shows the help.
+* `add` - Shows a list of files which can be added to the staging area.
+* `cherry <branch name> [<git log option>...]` - Cherry picks the selected
   commits from the given branch and the HEAD. The first parameter _must_ be a
   branch name.
+* `flog [<git log option>...]` - Lists all items of the git tree and shows
+  the log of the selected item.
+* `hash <command for hash>` - Shows the commit history and passes the hashes
+  of the selected entries to the command which was given as an argument.
+  * E.g. to get detailed information about a commit use `hash git show`.
+* `log [<git log option>...]` - Shows the commit history and shows the log
+  between the selected one and the HEAD.
+* `restore` - Show the list of files in the working area (aka modified files)
+  and restores the version from the local repository.
+* `switch [-r]` - Shows a list of branches and switches to the selected one.
+  * By default, only local branches are shown. To get a list of remote branches,
+  pass `-r` as an argument.
+* `unstage` - Shows the list of files which are in the staging area (aka
+  added files) and puts them back into the working area.
 
 > `<git log option>` - By default `--stat` is passed to `git log`. To get a
 different preview, pass a custom flag, like `--oneline`.
@@ -114,17 +115,17 @@ workflow. Choose the one which suits you the most.
 ### Configuration
 
 * `FUZZYGIT_IS_ECHO_STATUS=(true|false)` - [default: `true`] -
-  Toggle fuzzygit status infos.
-* `FUZZYGIT_IS_PREVIEW_SED=(true|false)` - [default: `true`] -
-  (experimental) Use fzf patterns in preview instead of sed command.
-  Set to `true` if `$SHELL`, which is used in preview by fzf, cannot handle the
-  preview command. _Note:_ Some previews might not work as expected.
+  Toggle fuzzygit status information.
 * `FUZZYGIT_PREVIEW_GIT_LOG_OPTS` - [default: `--stat`] -
   Set the options which are passed to `git log` when it is used in a preview
   environment.
 * `FUZZYGIT_GIT_LOG_PRETTY_FORMAT` - [default: `--pretty=format:%h - (%ar)
   %C(bold)%s%C(reset) - %aN%`] -
   Set the pretty log format for `git log`.
+* `FUZZYGIT_IS_PREVIEW_SED=(true|false)` - [default: `true`] -
+  (experimental) Use fzf patterns in preview instead of sed command.
+  Set to `true` if `$SHELL`, which is used in preview by fzf, cannot handle the
+  preview command. _Note:_ Some previews might not work as expected.
 
 #### Config File
 
@@ -133,7 +134,7 @@ The config file  `${XDG_CONFIG_HOME}/fuzzygit/config` will be respected.
 #### fzf
 
 `fuzzygit` aims to alter your `fzf` configuration as little as possible.
-For some features, like the preview, you might consider to set an option,
+For some features, like the preview, you might consider setting an option,
 e.g. a binding toggle.
 
 Here's my current configuration as a starting point:
@@ -168,7 +169,7 @@ git clone git@github.com:DennisBayer/fuzzygit.git
 source <path to repository>/fuzzygit
 ```
 
-If you'd like to use `fuzzygit` permanently consider to add `fuzzygit` to your
+If you'd like to use `fuzzygit` permanently consider adding `fuzzygit` to your
 `PATH`.
 
 ```bash
@@ -205,7 +206,7 @@ Whether there will be a roadmap or issue list is a pending matter.
   Does basically the same as `fuzzygit`, but did not fit my workflow at the time
   I discovered it.
 * [git-fuzzy][105] - "interactive `git` with the help of `fzf`". Another idea
-  of combining Git and fzf. Hava a look, if you're looking for a more visual
+  of combining Git and fzf. Have a look, if you're looking for a more visual
   approach.
 
 ### Useful Third-Party Tools
@@ -219,7 +220,7 @@ to beautify fzf's preview and Git's diff output.
 ## Contributing
 
 As of now the status of this project could be labeled as "hobby" and
-"provided as is". The future of this projects is depending on my agenda the next
+"provided as is". The future of this project depends on my agenda the next
 time.
 
 But if you would like to contribute either by submitting a bugfix or propose a
