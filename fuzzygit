@@ -370,6 +370,35 @@ fg_cherry() {
   fi
 }
 
+# -----------------------------------------------------------------------------
+# Command Line Completions
+# -----------------------------------------------------------------------------
+
+FG_COMPLETION_WORDS=("add" "cherry" "flog" "hash" "log" "restore" "switch" "unstage")
+
+_fg_completions_bash() {
+  local IFS=$' \t\n'
+
+  if [[ "${#COMP_WORDS[@]}" -ne "2" ]]; then
+    return
+  fi
+
+  # shellcheck disable=SC2207
+  COMPREPLY=( $(compgen -o default -W "${FG_COMPLETION_WORDS[*]}" -- "${COMP_WORDS[1]}") )
+}
+
+[[ -n "$BASH" ]] && complete -F _fg_completions_bash fuzzygit
+
+_fg_completions_zsh() {
+  if [[ "${CURRENT}" -ne "2" ]]; then
+    return
+  fi
+
+  compadd -a FG_COMPLETION_WORDS
+}
+
+[[ -n "$ZSH_NAME" ]] && compdef _fg_completions_zsh fuzzygit
+
 #
 # Prints a help summary.
 #
