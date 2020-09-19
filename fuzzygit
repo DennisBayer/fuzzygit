@@ -332,6 +332,65 @@ fg_cherry() {
   fi
 }
 
+fg_branch() {
+  fg_isGitRepo || return 1
+  [[ "$#" -lt 1 ]] && fg_echo "No action given." && return 1
+
+  local action sanatize preview header item rev
+
+  action="$1"
+  shift
+
+  case "$action" in
+    "contains")
+      # strip the two leading spaces ("* <branch>")
+      sanatize="sed $FG_GIT_SWITCH_PATTERN"
+
+      # get log of branches
+      if [[ "$FG_IS_PREVIEW_SED" == true ]]; then
+        preview="git log '$FG_GIT_LOG_PRETTY_FORMAT' \$($sanatize <<< {})"
+      else
+        preview="git log '$FG_GIT_LOG_PRETTY_FORMAT' {1}"
+      fi
+
+      header="$(fg_header \
+        "git branch --contains <selected branch>" \
+        "Lists the branches which contain the head commit of the selected branch.")"
+
+      item="$(git branch "${@:-"-l"}" |
+        fg_fzf_single --preview="$preview" --header="$header" |
+        sh -c "$sanatize")"
+
+      if [[ -n "$item" ]]; then
+        #git rev-parse "${item}" | xargs -t -I %headCommit% git branch --contains %headCommit%
+        rev=$(git rev-parse "${item}")
+      fi
+      ;;
+    "no-merged")
+      preview="git log -1 ${*:-${FG_VAR_PREVIEW_GIT_LOG_OPTS[*]}} {1}"
+
+      header="$(fg_header \
+        "git branch --no-merged <selected commit>" \
+        "Checks which branches contains the selected commit.")"
+
+      item="$(git log "$FG_GIT_LOG_PRETTY_FORMAT" |
+        fg_fzf_single --preview="$preview" --header="$header")"
+
+      if [[ -n "$item" ]]; then
+        rev=$(echo "${item}" | awk '{print $1}')
+      fi
+      ;;
+  esac
+
+  echo "git branch --${action} ${rev}"
+
+  if [[ -n "${rev}" ]]; then
+    git branch --"${action}" "${rev}"
+  else
+    fg_echo "No commit has been selected."
+  fi
+}
+
 # -----------------------------------------------------------------------------
 # Command Line Completions
 # -----------------------------------------------------------------------------
