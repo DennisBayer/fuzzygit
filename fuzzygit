@@ -9,9 +9,6 @@
 # fuzzygit - marry git and fzf
 #
 
-# Load completion, if available
-[[ -f "./fuzzygit-completion" ]] && source "./fuzzygit-completion"
-
 # shellcheck source=/dev/null
 [[ -f "${XDG_CONFIG_HOME}/fuzzygit/config" ]] && . "${XDG_CONFIG_HOME}/fuzzygit/config"
 
@@ -29,22 +26,18 @@ FG_VAR_PREVIEW_GIT_LOG_OPTS=("${FUZZYGIT_PREVIEW_GIT_LOG_OPTS:-"--stat"}")
 # -----------------------------------------------------------------------------
 
 fg_isGitRepo() {
-  git rev-parse HEAD > /dev/null 2>&1
+  git rev-parse HEAD >/dev/null 2>&1
 }
 
 fg_echo() {
-  [ "$FG_IS_ECHO_STATUS" != true ] && return 0;
+  [ "$FG_IS_ECHO_STATUS" != true ] && return 0
 
   if [[ "$#" -ne 0 ]]; then
-    #echo "$@" | xargs -r echo
     printf "%s\n" "$@"
   fi
 }
 
 fg_header() {
-  # echo -e "
-  #   \e[1m"$1"\e[0m - "$2"
-  # "
   printf "
     \e[1m%s\e[0m 
     \t%s
@@ -52,7 +45,7 @@ fg_header() {
 }
 
 #
-# Strip the three leading charactes ("?? <item>") and if ' -> ' is contained
+# Strip the three leading characters ("?? <item>") and if ' -> ' is contained
 # keep the part afterwards only.
 #
 FG_GIT_STATUS_PATTERN="'s/^...//; s/.*->.//; s/\"//g'"
@@ -87,12 +80,18 @@ fg_fzf_single() {
 # `fg hash git show` will call `fg_hash git show`.
 #
 fuzzygit() {
-  [[ "$#" -eq 0 || "$#" -eq 1 && "$1" == "--help" ]] && { fg_help; return 0; }
+  [[ "$#" -eq 0 || "$#" -eq 1 && "$1" == "--help" ]] && {
+    fg_help
+    return 0
+  }
 
-  fg_isGitRepo || { echo "No git repository found."; return 1; }
+  fg_isGitRepo || {
+    echo "No git repository found."
+    return 1
+  }
 
   if [[ "$#" -ne 0 ]]; then
-    fg_"$1" "${@:2:($#-1)}"
+    fg_"$1" "${@:2:($# - 1)}"
   else
     fg_help
   fi
@@ -100,8 +99,8 @@ fuzzygit() {
 
 #
 # Shows a list of local branches and switches to the selected one.
-# 
-# Passed arguments are added to the branch listing, 
+#
+# Passed arguments are added to the branch listing,
 # e.g. `-r` will list remote branches.
 #
 fg_switch() {
@@ -113,7 +112,7 @@ fg_switch() {
   sanatize="sed $FG_GIT_SWITCH_PATTERN"
 
   # get log of branches
-  if [[ "$FG_IS_PREVIEW_SED" = true ]]; then
+  if [[ "$FG_IS_PREVIEW_SED" == true ]]; then
     preview="git log '$FG_GIT_LOG_PRETTY_FORMAT' \$($sanatize <<< {})"
   else
     preview="git log '$FG_GIT_LOG_PRETTY_FORMAT' {1}"
@@ -146,7 +145,7 @@ fg_add() {
   sanatize="sed $FG_GIT_STATUS_PATTERN"
 
   # check if file is untracked; show pager in preview accordingly
-  if [[ "$FG_IS_PREVIEW_SED" = true ]]; then
+  if [[ "$FG_IS_PREVIEW_SED" == true ]]; then
     preview="item=\$($sanatize <<< {})
       if (git status -s -- \"\$item\" | grep '^??') &>/dev/null; then
           # diff with /dev/null for untracked files
@@ -199,10 +198,10 @@ fg_unstage() {
   sanatize="sed $FG_GIT_STATUS_PATTERN"
 
   # show diff in pager
-  if [[ "$FG_IS_PREVIEW_SED" = true ]]; then
+  if [[ "$FG_IS_PREVIEW_SED" == true ]]; then
     preview="item=\$($sanatize <<< {})
       git diff --staged -- \"\$item\" | $FG_VAR_GIT_PAGER"
-  else 
+  else
     preview="git diff --staged -- '{2..}' | $FG_VAR_GIT_PAGER"
   fi
 
@@ -237,7 +236,7 @@ fg_restore() {
   sanatize="sed $FG_GIT_STATUS_PATTERN"
 
   # show diff in pager
-  if [[ "$FG_IS_PREVIEW_SED" = true ]]; then
+  if [[ "$FG_IS_PREVIEW_SED" == true ]]; then
     preview="item=\$($sanatize <<< {})
       git diff -- \"\$item\" | $FG_VAR_GIT_PAGER"
   else
@@ -323,7 +322,7 @@ fg_hash() {
 
   local preview header items
 
-  # As for now no log opts can be passed externally, because hash uses arguments 
+  # As for now no log opts can be passed externally, because hash uses arguments
   # to control execution.
   preview="git log -1 ${FG_VAR_PREVIEW_GIT_LOG_OPTS[*]} {1}"
 
@@ -384,7 +383,7 @@ _fg_completions_bash() {
   fi
 
   # shellcheck disable=SC2207
-  COMPREPLY=( $(compgen -o default -W "${FG_COMPLETION_WORDS[*]}" -- "${COMP_WORDS[1]}") )
+  COMPREPLY=($(compgen -o default -W "${FG_COMPLETION_WORDS[*]}" -- "${COMP_WORDS[1]}"))
 }
 
 [[ -n "$BASH" ]] && complete -F _fg_completions_bash fuzzygit
