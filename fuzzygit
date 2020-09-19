@@ -327,8 +327,8 @@ fg_hash() {
   preview="git log -1 ${FG_VAR_PREVIEW_GIT_LOG_OPTS[*]} {1}"
 
   header="$(fg_header \
-    "\"\$@\" <selected commit>" \
-    "Passes the selected commit to whatever was given as an argument.")"
+    "$* <selected commit>" \
+    "Passes the selected commit to to the given command.")"
 
   items="$(git log "$FG_GIT_LOG_PRETTY_FORMAT" |
     fg_fzf --preview="$preview" --header="$header")"
