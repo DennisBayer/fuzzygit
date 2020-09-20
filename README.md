@@ -27,7 +27,6 @@ interest rather than typing.
   * [Finder](#finder)
   * [Interaction](#interaction)
   * [Configuration](#configuration)
-    * [Config File](#config-file)
     * [fzf](#fzf)
 * [Install](#install)
   * [Dependencies](#dependencies)
@@ -114,22 +113,21 @@ workflow. Choose the one which suits you the most.
 
 ### Configuration
 
+The config file  `${XDG_CONFIG_HOME}/fuzzygit/config` will be respected. Just
+put your favorite values in there.
+
 * `FUZZYGIT_IS_ECHO_STATUS=(true|false)` - [default: `true`] -
   Toggle fuzzygit status information.
 * `FUZZYGIT_PREVIEW_GIT_LOG_OPTS` - [default: `--stat`] -
   Set the options which are passed to `git log` when it is used in a preview
   environment.
-* `FUZZYGIT_GIT_LOG_PRETTY_FORMAT` - [default: `--pretty=format:%h - (%ar)
-  %C(bold)%s%C(reset) - %aN%`] -
-  Set the pretty log format for `git log`.
+* `FUZZYGIT_GIT_LOG_PRETTY_FORMAT` - [default: `(%ar) %C(bold)%s%C(reset) - %aN%`] -
+  Set the pretty log format for `git log`.<br>_Note:_ The pretty format always
+  starts with `--pretty=format:%h - `. Your config will be appended.
 * `FUZZYGIT_IS_PREVIEW_SED=(true|false)` - [default: `true`] -
   (experimental) Use fzf patterns in preview instead of sed command.
   Set to `true` if `$SHELL`, which is used in preview by fzf, cannot handle the
-  preview command. _Note:_ Some previews might not work as expected.
-
-#### Config File
-
-The config file  `${XDG_CONFIG_HOME}/fuzzygit/config` will be respected.
+  preview command.<br>_Note:_ Some previews might not work as expected.
 
 #### fzf
 

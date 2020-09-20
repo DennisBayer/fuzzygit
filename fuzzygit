@@ -15,7 +15,7 @@
 # Fuzzygit config
 FG_IS_ECHO_STATUS=${FUZZYGIT_IS_ECHO_STATUS:-true}
 FG_IS_PREVIEW_SED=${FUZZYGIT_IS_PREVIEW_SED:-true}
-FG_GIT_LOG_PRETTY_FORMAT=${FUZZYGIT_GIT_LOG_PRETTY_FORMAT:-"--pretty=format:%h - (%ar) %C(bold)%s%C(reset) - %aN%d"}
+FG_GIT_LOG_PRETTY_FORMAT="--pretty=format:%h - "${FUZZYGIT_GIT_LOG_PRETTY_FORMAT:-"(%ar) %C(bold)%s%C(reset) - %aN%d"}
 
 # Git config
 FG_VAR_GIT_PAGER=$(git config core.pager)
