@@ -113,7 +113,7 @@ workflow. Choose the one which suits you the most.
 
 ### Configuration
 
-The config file  `${XDG_CONFIG_HOME}/fuzzygit/config` will be respected. Just
+The config file `${XDG_CONFIG_HOME}/fuzzygit/config` will be respected. Just
 put your favorite values in there.
 
 * `FUZZYGIT_IS_ECHO_STATUS=(true|false)` - [default: `true`] -
@@ -124,10 +124,6 @@ put your favorite values in there.
 * `FUZZYGIT_GIT_LOG_PRETTY_FORMAT` - [default: `(%ar) %C(bold)%s%C(reset) - %aN%`] -
   Set the pretty log format for `git log`.<br>_Note:_ The pretty format always
   starts with `--pretty=format:%h - `. Your config will be appended.
-* `FUZZYGIT_IS_PREVIEW_SED=(true|false)` - [default: `true`] -
-  (experimental) Use fzf patterns in preview instead of sed command.
-  Set to `true` if `$SHELL`, which is used in preview by fzf, cannot handle the
-  preview command.<br>_Note:_ Some previews might not work as expected.
 
 #### fzf
 

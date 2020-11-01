@@ -14,7 +14,6 @@
 
 # Fuzzygit config
 FG_IS_ECHO_STATUS=${FUZZYGIT_IS_ECHO_STATUS:-true}
-FG_IS_PREVIEW_SED=${FUZZYGIT_IS_PREVIEW_SED:-true}
 FG_GIT_LOG_PRETTY_FORMAT="--pretty=format:%h - "${FUZZYGIT_GIT_LOG_PRETTY_FORMAT:-"(%ar) %C(bold)%s%C(reset) - %aN%d"}
 
 # Git config
@@ -48,12 +47,7 @@ fg_header() {
 # Strip the three leading characters ("?? <item>") and if ' -> ' is contained
 # keep the part afterwards only.
 #
-FG_GIT_STATUS_PATTERN="'s/^...//; s/.*->.//; s/\"//g'"
-
-#
-# Strip the two leading spaces ("* <branch>")
-#
-FG_GIT_SWITCH_PATTERN="'s/^..//'"
+FG_GIT_STATUS_PATTERN='s/^...//; s/.*->.//; s/\"//g'
 
 # -----------------------------------------------------------------------------
 # fzf functions
@@ -106,29 +100,23 @@ fuzzygit() {
 fg_switch() {
   fg_isGitRepo || return 1
 
-  local sanatize preview header item
-
-  # strip the two leading spaces ("* <branch>")
-  sanatize="sed $FG_GIT_SWITCH_PATTERN"
+  local preview header item
 
   # get log of branches
-  if [[ "$FG_IS_PREVIEW_SED" == true ]]; then
-    preview="git log '$FG_GIT_LOG_PRETTY_FORMAT' \$($sanatize <<< {})"
-  else
-    preview="git log '$FG_GIT_LOG_PRETTY_FORMAT' {1}"
-  fi
+  preview="git log '$FG_GIT_LOG_PRETTY_FORMAT' {1}"
 
   header="$(fg_header \
     "git switch <selected branch>" \
     "Switch or checkout the branch.")"
 
   item="$(git branch "${@:-"-l"}" |
-    fg_fzf_single --preview="$preview" --header="$header" |
-    sh -c "$sanatize")"
+    fg_fzf_single --preview="$preview" --header="$header")"
 
   # switch to branch if any
   if [[ -n "$item" ]]; then
-    echo "$item" | xargs -I %branch git switch %branch
+    echo "$item" |
+    awk -F '([[:space:]]{2}|[[:space:]]*)' '{print $2}' |
+    xargs -I %branch git switch %branch
   else
     fg_echo "No branch has been selected."
   fi
@@ -140,32 +128,21 @@ fg_switch() {
 fg_add() {
   fg_isGitRepo || return 1
 
-  local sanatize preview header items
-
-  sanatize="sed $FG_GIT_STATUS_PATTERN"
+  local preview header items
 
   # check if file is untracked; show pager in preview accordingly
-  if [[ "$FG_IS_PREVIEW_SED" == true ]]; then
-    preview="item=\$($sanatize <<< {})
-      if (git status -s -- \"\$item\" | grep '^??') &>/dev/null; then
-          # diff with /dev/null for untracked files
-          git diff --no-index -- /dev/null \"\$item\" | $FG_VAR_GIT_PAGER
-      elif (git status -s -- \"\$item\" | grep '^[M|A][[:space:]]'); then
-          git diff --staged -- \"\$item\" | $FG_VAR_GIT_PAGER
-      else
-          git diff -- \"\$item\" | $FG_VAR_GIT_PAGER
-      fi"
-  else
-    preview="
-      if (git status -s -- {2..} | grep '^??') &>/dev/null; then
-          # diff with /dev/null for untracked files
-          git diff --no-index -- /dev/null {2..} | $FG_VAR_GIT_PAGER
-      elif (git status -s -- {2..} | grep '^[M|A][[:space:]]'); then
-          git diff --staged -- '{2..}' | $FG_VAR_GIT_PAGER
-      else
-          git diff -- '{2..}' | $FG_VAR_GIT_PAGER
-      fi"
-  fi
+  preview="
+    if (git status -s -- {2..} | grep '^??') &>/dev/null; then
+      # diff with /dev/null for untracked files
+      git diff --no-index -- /dev/null {2..} | $FG_VAR_GIT_PAGER
+    elif (git status -s -- {2..} | grep '^[M|A][[:space:]]'); then
+      git diff --staged -- '{2..}' | $FG_VAR_GIT_PAGER
+    elif (\$(git status -s -- {2..})) &>/dev/null; then
+      # diff new name of renamed and modified files
+      git diff --staged -- '{-1}'
+    else
+      git diff -- '{2..}' | $FG_VAR_GIT_PAGER
+    fi"
 
   header="$(fg_header \
     "git add -- <selected items>" \
@@ -175,7 +152,7 @@ fg_add() {
   items="$(git status -su |
     grep -v -E '^[MARCD][[:space:]]' |
     fg_fzf --nth 2..,.. --preview="$preview" --header="$header" |
-    sh -c "$sanatize")"
+    sed "$FG_GIT_STATUS_PATTERN")"
 
   # add files if any
   if [[ -n "$items" ]]; then
@@ -193,17 +170,10 @@ fg_add() {
 fg_unstage() {
   fg_isGitRepo || return 1
 
-  local sanatize preview header items
-
-  sanatize="sed $FG_GIT_STATUS_PATTERN"
+  local preview header items
 
   # show diff in pager
-  if [[ "$FG_IS_PREVIEW_SED" == true ]]; then
-    preview="item=\$($sanatize <<< {})
-      git diff --staged -- \"\$item\" | $FG_VAR_GIT_PAGER"
-  else
-    preview="git diff --staged -- '{2..}' | $FG_VAR_GIT_PAGER"
-  fi
+  preview="git diff --staged -- '{2..}' | $FG_VAR_GIT_PAGER"
 
   header="$(fg_header \
     "git restore --staged -- <selected items>" \
@@ -213,7 +183,7 @@ fg_unstage() {
   items="$(git status -s -uno |
     grep -E "^[MARCD][[:space:]]?" |
     fg_fzf --nth 2..,.. --preview="$preview" --header="$header" |
-    sh -c "$sanatize")"
+    sed "$FG_GIT_STATUS_PATTERN")"
 
   # add files if any
   if [[ -n "$items" ]]; then
@@ -231,17 +201,10 @@ fg_unstage() {
 fg_restore() {
   fg_isGitRepo || return 1
 
-  local sanatize preview header items
-
-  sanatize="sed $FG_GIT_STATUS_PATTERN"
+  local preview header items
 
   # show diff in pager
-  if [[ "$FG_IS_PREVIEW_SED" == true ]]; then
-    preview="item=\$($sanatize <<< {})
-      git diff -- \"\$item\" | $FG_VAR_GIT_PAGER"
-  else
-    preview="git diff -- '{2..}' | $FG_VAR_GIT_PAGER"
-  fi
+  preview="git diff -- '{2..}' | $FG_VAR_GIT_PAGER"
 
   header="$(fg_header \
     "git restore -- <selected items>" \
@@ -251,7 +214,7 @@ fg_restore() {
   items="$(git status -s -uno |
     grep -E "^([MARCD]|[[:space:]])[MARCD]" |
     fg_fzf --nth 2..,.. --preview="$preview" --header="$header" |
-    sh -c "$sanatize")"
+    sed "$FG_GIT_STATUS_PATTERN")"
 
   # add files if any
   if [[ -n "$items" ]]; then
@@ -462,12 +425,6 @@ fg_help() {
     Set the options which are passed to 'git log' when it is used in a preview
     environment."
   printf "  %s\n\n" "$envVarPreviewGitLog"
-
-  local envVarPreviewSed="FUZZYGIT_IS_PREVIEW_SED=(true|false) - [default: true]
-    (experimental) Use fzf patterns in preview instead of sed command.
-    Set to 'true' if \$SHELL, which is used in preview by fzf, cannot handle
-    the preview command. _Note:_ Some previews might not work as expected."
-  printf "  %s\n\n" "$envVarPreviewSed"
 
   local envVarLogPretty="FUZZYGIT_GIT_LOG_PRETTY_FORMAT - 
     [default: --pretty=format:%h - (%ar) %C(bold)%s%C(reset) - %aN%d]
