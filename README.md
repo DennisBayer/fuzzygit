@@ -122,10 +122,6 @@ workflow. Choose the one which suits you the most.
 * `FUZZYGIT_GIT_LOG_PRETTY_FORMAT` - [default: `--pretty=format:%h - (%ar)
   %C(bold)%s%C(reset) - %aN%`] -
   Set the pretty log format for `git log`.
-* `FUZZYGIT_IS_PREVIEW_SED=(true|false)` - [default: `true`] -
-  (experimental) Use fzf patterns in preview instead of sed command.
-  Set to `true` if `$SHELL`, which is used in preview by fzf, cannot handle the
-  preview command. _Note:_ Some previews might not work as expected.
 
 #### Config File
 
