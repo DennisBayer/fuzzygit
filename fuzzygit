@@ -49,6 +49,11 @@ fg_header() {
 #
 FG_GIT_STATUS_PATTERN='s/^...//; s/.*->.//; s/\"//g'
 
+#
+# Strip the two leading spaces ("* <branch>")
+#
+FG_GIT_SWITCH_PATTERN='s/^..//'
+
 # -----------------------------------------------------------------------------
 # fzf functions
 # -----------------------------------------------------------------------------
@@ -332,26 +337,25 @@ fg_cherry() {
   fi
 }
 
+#
+# Lists branches which either contain another branch or which do not contain a
+# certain commit.
+#
+# The command must be followed by an action: "contains", "no-merged"
+#
 fg_branch() {
   fg_isGitRepo || return 1
   [[ "$#" -lt 1 ]] && fg_echo "No action given." && return 1
 
-  local action sanatize preview header item rev
+  local action preview header item rev
 
   action="$1"
   shift
 
   case "$action" in
     "contains")
-      # strip the two leading spaces ("* <branch>")
-      sanatize="sed $FG_GIT_SWITCH_PATTERN"
-
       # get log of branches
-      if [[ "$FG_IS_PREVIEW_SED" == true ]]; then
-        preview="git log '$FG_GIT_LOG_PRETTY_FORMAT' \$($sanatize <<< {})"
-      else
-        preview="git log '$FG_GIT_LOG_PRETTY_FORMAT' {1}"
-      fi
+      preview="git log '$FG_GIT_LOG_PRETTY_FORMAT' {1}"
 
       header="$(fg_header \
         "git branch --contains <selected branch>" \
@@ -359,19 +363,19 @@ fg_branch() {
 
       item="$(git branch "${@:-"-l"}" |
         fg_fzf_single --preview="$preview" --header="$header" |
-        sh -c "$sanatize")"
+        sed "$FG_GIT_SWITCH_PATTERN")"
 
       if [[ -n "$item" ]]; then
-        #git rev-parse "${item}" | xargs -t -I %headCommit% git branch --contains %headCommit%
         rev=$(git rev-parse "${item}")
       fi
       ;;
+
     "no-merged")
       preview="git log -1 ${*:-${FG_VAR_PREVIEW_GIT_LOG_OPTS[*]}} {1}"
 
       header="$(fg_header \
         "git branch --no-merged <selected commit>" \
-        "Checks which branches contains the selected commit.")"
+        "Lists the branches which does not contain the selected commit.")"
 
       item="$(git log "$FG_GIT_LOG_PRETTY_FORMAT" |
         fg_fzf_single --preview="$preview" --header="$header")"
@@ -395,7 +399,7 @@ fg_branch() {
 # Command Line Completions
 # -----------------------------------------------------------------------------
 
-FG_COMPLETION_WORDS=("add" "cherry" "flog" "hash" "log" "restore" "switch" "unstage")
+FG_COMPLETION_WORDS=("add" "branch" "cherry" "flog" "hash" "log" "restore" "switch" "unstage")
 
 _fg_completions_bash() {
   local IFS=$' \t\n'
@@ -436,6 +440,11 @@ fg_help() {
   local addUsage="add
     Shows a list of files which can be added to the staging area."
   printf "  %s\n\n" "$addUsage"
+
+  local branchUsage="branch (contains | no-merged)
+    Lists branches which either contain another branch or which do not contain a
+    certain commit. The desired action is passed as an argument."
+  printf "  %s\n\n" "$branchUsage"
 
   local cherryUsage="cherry <branch name> [<git log option>...]
     Cherry picks the selected commits from the given branch and the HEAD. The

@@ -53,6 +53,9 @@ The following features are available:
   * E.g. `fuzzygit add` or `fuzzygit hash git show`.
   * `--help` - Shows the help.
 * `add` - Shows a list of files which can be added to the staging area.
+* `branch (contains | no-merged)`
+  Lists branches which either contain another branch or which do not contain a
+  certain commit. The desired action is passed as an argument.
 * `cherry <branch name> [<git log option>...]` - Cherry picks the selected
   commits from the given branch and the HEAD. The first parameter _must_ be a
   branch name.
