@@ -275,7 +275,7 @@ fg_flog() {
 
   if [[ -n "${item}" ]]; then
     # shellcheck disable=SC2068
-    echo "${item}" | xargs -t -I %item git log ${@:-${FG_VAR_PREVIEW_GIT_LOG_OPTS[@]}} -- %item
+    echo "${item}" | xargs -t -I %item git log --reverse ${@:-${FG_VAR_PREVIEW_GIT_LOG_OPTS[@]}} -- %item
   else
     fg_echo "No item has been selected."
   fi
