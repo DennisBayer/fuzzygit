@@ -114,7 +114,7 @@ fg_switch() {
     "git switch <selected branch>" \
     "Switch or checkout the branch.")"
 
-  item="$(git branch "${@:-"-l"}" |
+  item="$(git branch "${@:-"-v"}" |
     fg_fzf_single --preview="${preview}" --header="${header}")"
 
   # switch to branch if any
