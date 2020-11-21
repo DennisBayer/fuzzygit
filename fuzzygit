@@ -497,7 +497,9 @@ fg_help() {
   local envVarLogPretty="FUZZYGIT_GIT_LOG_PRETTY_FORMAT - 
     [default: --pretty=format:%h - (%ar) %C(bold)%s%C(reset) - %aN%d]
     Set the pretty format to use when 'git log' is used in list of available
-    items."
+    items.
+    Note: The pretty format always starts with '%h - '. Your config will be
+    appended."
   printf "  %s\n\n" "${envVarLogPretty}"
 
   printf "%s\n\n" "For further information see README.md or visit:
