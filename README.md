@@ -188,7 +188,11 @@ Some basic tools are required as well:
 
 ## Version Overview
 
-* `0.1.0-beta.1` - Initial release with a basic feature set.
+| Version        | Date       | Notes |
+| ---            | ---        | --- |
+| `0.2.0-beta.1` | 2020-11-22 | Feature release ([Release Notes][301]) |
+| `0.1.0`        | 2020-09-18 | Feature release ([Release Notes][300]) |
+| `0.1.0-beta.1` | 2020-09-01 | Initial release with a basic feature set. |
 
 Whether there will be a roadmap or issue list is a pending matter.
 
@@ -236,3 +240,5 @@ issue please file a [new issue][1]. See [CONTRIBUTING](docs/CONTRIBUTING.md).
 [103]: https://github.com/wfxr/forgit
 [104]: https://github.com/junegunn/fzf#using-the-finder
 [105]: https://github.com/bigH/git-fuzzy
+[300]: https://github.com/DennisBayer/fuzzygit/releases/tag/0.1.0
+[301]: https://github.com/DennisBayer/fuzzygit/releases/tag/0.2.0.beta.1
