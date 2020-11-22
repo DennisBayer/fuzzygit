@@ -1,7 +1,7 @@
 <p align="center">
   <img src="/docs/assets/images/fuzzygit.png" alt="fuzzygit banner" /><br>
   <img alt="GitHub" src="https://img.shields.io/github/license/DennisBayer/fuzzygit">
-  <img alt="GitHub release (latest SemVer)" src="https://img.shields.io/github/v/release/DennisBayer/fuzzygit?sort=semver">  
+  <img alt="GitHub release (latest SemVer)" src="https://img.shields.io/github/v/release/DennisBayer/fuzzygit">  
   <img alt="GitHub release (latest SemVer including pre-releases)" src="https://img.shields.io/github/v/release/DennisBayer/fuzzygit?include_prereleases&label=pre-release&sort=semver">
   <img alt="GitHub issues" src="https://img.shields.io/github/issues/DennisBayer/fuzzygit">
 </p>
