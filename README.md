@@ -27,7 +27,6 @@ interest rather than typing.
   * [Finder](#finder)
   * [Interaction](#interaction)
   * [Configuration](#configuration)
-    * [Config File](#config-file)
     * [fzf](#fzf)
 * [Install](#install)
   * [Dependencies](#dependencies)
@@ -54,6 +53,9 @@ The following features are available:
   * E.g. `fuzzygit add` or `fuzzygit hash git show`.
   * `--help` - Shows the help.
 * `add` - Shows a list of files which can be added to the staging area.
+* `branch (contains | no-merged)`
+  Lists branches which either contain another branch or which do not contain a
+  certain commit. The desired action is passed as an argument.
 * `cherry <branch name> [<git log option>...]` - Cherry picks the selected
   commits from the given branch and the HEAD. The first parameter _must_ be a
   branch name.
@@ -114,22 +116,17 @@ workflow. Choose the one which suits you the most.
 
 ### Configuration
 
+The config file `${XDG_CONFIG_HOME}/fuzzygit/config` will be respected. Just
+put your favorite values in there.
+
 * `FUZZYGIT_IS_ECHO_STATUS=(true|false)` - [default: `true`] -
   Toggle fuzzygit status information.
 * `FUZZYGIT_PREVIEW_GIT_LOG_OPTS` - [default: `--stat`] -
   Set the options which are passed to `git log` when it is used in a preview
   environment.
-* `FUZZYGIT_GIT_LOG_PRETTY_FORMAT` - [default: `--pretty=format:%h - (%ar)
-  %C(bold)%s%C(reset) - %aN%`] -
-  Set the pretty log format for `git log`.
-* `FUZZYGIT_IS_PREVIEW_SED=(true|false)` - [default: `true`] -
-  (experimental) Use fzf patterns in preview instead of sed command.
-  Set to `true` if `$SHELL`, which is used in preview by fzf, cannot handle the
-  preview command. _Note:_ Some previews might not work as expected.
-
-#### Config File
-
-The config file  `${XDG_CONFIG_HOME}/fuzzygit/config` will be respected.
+* `FUZZYGIT_GIT_LOG_PRETTY_FORMAT` - [default: `(%ar) %C(bold)%s%C(reset) - %aN%`] -
+  Set the pretty log format for `git log`.<br>_Note:_ The pretty format always
+  starts with `--pretty=format:%h - `. Your config will be appended.
 
 #### fzf
 
@@ -191,7 +188,12 @@ Some basic tools are required as well:
 
 ## Version Overview
 
-* `0.1.0-beta.1` - Initial release with a basic feature set.
+| Version        | Date       | Notes |
+| ---            | ---        | --- |
+| `0.2.0`        | 2020-12-06 | Feature release ([Release Notes][302]) |
+| `0.2.0-beta.1` | 2020-11-22 | Feature release ([Release Notes][301]) |
+| `0.1.0`        | 2020-09-18 | Feature release ([Release Notes][300]) |
+| `0.1.0-beta.1` | 2020-09-01 | Initial release with a basic feature set. |
 
 Whether there will be a roadmap or issue list is a pending matter.
 
@@ -239,3 +241,6 @@ issue please file a [new issue][1]. See [CONTRIBUTING](docs/CONTRIBUTING.md).
 [103]: https://github.com/wfxr/forgit
 [104]: https://github.com/junegunn/fzf#using-the-finder
 [105]: https://github.com/bigH/git-fuzzy
+[300]: https://github.com/DennisBayer/fuzzygit/releases/tag/0.1.0
+[301]: https://github.com/DennisBayer/fuzzygit/releases/tag/0.2.0.beta.1
+[302]: https://github.com/DennisBayer/fuzzygit/releases/tag/0.2.0

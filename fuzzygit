@@ -9,16 +9,12 @@
 # fuzzygit - marry git and fzf
 #
 
-# Load completion, if available
-[[ -f "./fuzzygit-completion" ]] && source "./fuzzygit-completion"
-
 # shellcheck source=/dev/null
 [[ -f "${XDG_CONFIG_HOME}/fuzzygit/config" ]] && . "${XDG_CONFIG_HOME}/fuzzygit/config"
 
 # Fuzzygit config
 FG_IS_ECHO_STATUS=${FUZZYGIT_IS_ECHO_STATUS:-true}
-FG_IS_PREVIEW_SED=${FUZZYGIT_IS_PREVIEW_SED:-true}
-FG_GIT_LOG_PRETTY_FORMAT=${FUZZYGIT_GIT_LOG_PRETTY_FORMAT:-"--pretty=format:%h - (%ar) %C(bold)%s%C(reset) - %aN%d"}
+FG_GIT_LOG_PRETTY_FORMAT="--pretty=format:%h - "${FUZZYGIT_GIT_LOG_PRETTY_FORMAT:-"(%ar) %C(bold)%s%C(reset) - %aN%d"}
 
 # Git config
 FG_VAR_GIT_PAGER=$(git config core.pager)
@@ -29,49 +25,45 @@ FG_VAR_PREVIEW_GIT_LOG_OPTS=("${FUZZYGIT_PREVIEW_GIT_LOG_OPTS:-"--stat"}")
 # -----------------------------------------------------------------------------
 
 fg_isGitRepo() {
-  git rev-parse HEAD > /dev/null 2>&1
+  git rev-parse HEAD >/dev/null 2>&1
 }
 
 fg_echo() {
-  [ "$FG_IS_ECHO_STATUS" != true ] && return 0;
+  [ "${FG_IS_ECHO_STATUS}" != true ] && return 0
 
-  if [[ "$#" -ne 0 ]]; then
-    #echo "$@" | xargs -r echo
-    printf "%s\n" "$@"
+  if [[ "${#}" -ne 0 ]]; then
+    printf "%b\n" "${@}"
   fi
 }
 
 fg_header() {
-  # echo -e "
-  #   \e[1m"$1"\e[0m - "$2"
-  # "
   printf "
     \e[1m%s\e[0m 
     \t%s
-  " "$1" "$2"
+  " "${1}" "${2}"
 }
 
 #
-# Strip the three leading charactes ("?? <item>") and if ' -> ' is contained
+# Strip the three leading characters ("?? <item>") and if ' -> ' is contained
 # keep the part afterwards only.
 #
-FG_GIT_STATUS_PATTERN="'s/^...//; s/.*->.//; s/\"//g'"
+FG_GIT_STATUS_PATTERN='s/^...//; s/.*->.//; s/\"//g'
 
 #
 # Strip the two leading spaces ("* <branch>")
 #
-FG_GIT_SWITCH_PATTERN="'s/^..//'"
+FG_GIT_SWITCH_PATTERN='s/^..//'
 
 # -----------------------------------------------------------------------------
 # fzf functions
 # -----------------------------------------------------------------------------
 
 fg_fzf() {
-  fzf --cycle --layout=reverse --multi "$@"
+  fzf --cycle --layout=reverse --multi "${@}"
 }
 
 fg_fzf_single() {
-  fzf --cycle --layout=reverse --no-multi "$@"
+  fzf --cycle --layout=reverse --no-multi "${@}"
 }
 
 # -----------------------------------------------------------------------------
@@ -87,12 +79,18 @@ fg_fzf_single() {
 # `fg hash git show` will call `fg_hash git show`.
 #
 fuzzygit() {
-  [[ "$#" -eq 0 || "$#" -eq 1 && "$1" == "--help" ]] && { fg_help; return 0; }
+  [[ "${#}" -eq 0 || "${#}" -eq 1 && "${1}" == "--help" ]] && {
+    fg_help
+    return 0
+  }
 
-  fg_isGitRepo || { echo "No git repository found."; return 1; }
+  fg_isGitRepo || {
+    echo "No git repository found."
+    return 1
+  }
 
-  if [[ "$#" -ne 0 ]]; then
-    fg_"$1" "${@:2:($#-1)}"
+  if [[ "${#}" -ne 0 ]]; then
+    fg_"${1}" "${@:2:(${#} - 1)}"
   else
     fg_help
   fi
@@ -100,36 +98,30 @@ fuzzygit() {
 
 #
 # Shows a list of local branches and switches to the selected one.
-# 
-# Passed arguments are added to the branch listing, 
+#
+# Passed arguments are added to the branch listing,
 # e.g. `-r` will list remote branches.
 #
 fg_switch() {
   fg_isGitRepo || return 1
 
-  local sanatize preview header item
-
-  # strip the two leading spaces ("* <branch>")
-  sanatize="sed $FG_GIT_SWITCH_PATTERN"
+  local preview header item
 
   # get log of branches
-  if [[ "$FG_IS_PREVIEW_SED" = true ]]; then
-    preview="git log '$FG_GIT_LOG_PRETTY_FORMAT' \$($sanatize <<< {})"
-  else
-    preview="git log '$FG_GIT_LOG_PRETTY_FORMAT' {1}"
-  fi
+  preview="git log '${FG_GIT_LOG_PRETTY_FORMAT}' {1}"
 
   header="$(fg_header \
     "git switch <selected branch>" \
     "Switch or checkout the branch.")"
 
-  item="$(git branch "${@:-"-l"}" |
-    fg_fzf_single --preview="$preview" --header="$header" |
-    sh -c "$sanatize")"
+  item="$(git branch "${@:-"-v"}" |
+    fg_fzf_single --preview="${preview}" --header="${header}")"
 
   # switch to branch if any
-  if [[ -n "$item" ]]; then
-    echo "$item" | xargs -I %branch git switch %branch
+  if [[ -n "${item}" ]]; then
+    echo "${item}" |
+    awk -F '([[:space:]]{2}|[[:space:]]*)' '{print $2}' |
+    xargs -I %branch git switch %branch
   else
     fg_echo "No branch has been selected."
   fi
@@ -141,32 +133,21 @@ fg_switch() {
 fg_add() {
   fg_isGitRepo || return 1
 
-  local sanatize preview header items
-
-  sanatize="sed $FG_GIT_STATUS_PATTERN"
+  local preview header items
 
   # check if file is untracked; show pager in preview accordingly
-  if [[ "$FG_IS_PREVIEW_SED" = true ]]; then
-    preview="item=\$($sanatize <<< {})
-      if (git status -s -- \"\$item\" | grep '^??') &>/dev/null; then
-          # diff with /dev/null for untracked files
-          git diff --no-index -- /dev/null \"\$item\" | $FG_VAR_GIT_PAGER
-      elif (git status -s -- \"\$item\" | grep '^[M|A][[:space:]]'); then
-          git diff --staged -- \"\$item\" | $FG_VAR_GIT_PAGER
-      else
-          git diff -- \"\$item\" | $FG_VAR_GIT_PAGER
-      fi"
-  else
-    preview="
-      if (git status -s -- {2..} | grep '^??') &>/dev/null; then
-          # diff with /dev/null for untracked files
-          git diff --no-index -- /dev/null {2..} | $FG_VAR_GIT_PAGER
-      elif (git status -s -- {2..} | grep '^[M|A][[:space:]]'); then
-          git diff --staged -- '{2..}' | $FG_VAR_GIT_PAGER
-      else
-          git diff -- '{2..}' | $FG_VAR_GIT_PAGER
-      fi"
-  fi
+  preview="
+    if (git status -s -- {2..} | grep '^??') &>/dev/null; then
+      # diff with /dev/null for untracked files
+      git diff --no-index -- /dev/null {2..} | ${FG_VAR_GIT_PAGER}
+    elif (git status -s -- {2..} | grep '^[M|A][[:space:]]'); then
+      git diff --staged -- '{2..}' | ${FG_VAR_GIT_PAGER}
+    elif (\$(git status -s -- {2..})) &>/dev/null; then
+      # diff new name of renamed and modified files
+      git diff --staged -- '{-1}'
+    else
+      git diff -- '{2..}' | ${FG_VAR_GIT_PAGER}
+    fi"
 
   header="$(fg_header \
     "git add -- <selected items>" \
@@ -175,13 +156,13 @@ fg_add() {
   # get parsable status; show preview and limit search to second block
   items="$(git status -su |
     grep -v -E '^[MARCD][[:space:]]' |
-    fg_fzf --nth 2..,.. --preview="$preview" --header="$header" |
-    sh -c "$sanatize")"
+    fg_fzf --nth 2..,.. --preview="${preview}" --header="${header}" |
+    sed "${FG_GIT_STATUS_PATTERN}")"
 
   # add files if any
-  if [[ -n "$items" ]]; then
+  if [[ -n "${items}" ]]; then
     #  add selected files to staging area; add single quote to escape whitespaces in file names
-    echo "$items" | xargs -t -I %itemsToAdd git add -- '%itemsToAdd'
+    echo "${items}" | xargs -t -I %itemsToAdd git add -- '%itemsToAdd'
   else
     fg_echo "No files have been selected."
   fi
@@ -194,17 +175,10 @@ fg_add() {
 fg_unstage() {
   fg_isGitRepo || return 1
 
-  local sanatize preview header items
-
-  sanatize="sed $FG_GIT_STATUS_PATTERN"
+  local preview header items
 
   # show diff in pager
-  if [[ "$FG_IS_PREVIEW_SED" = true ]]; then
-    preview="item=\$($sanatize <<< {})
-      git diff --staged -- \"\$item\" | $FG_VAR_GIT_PAGER"
-  else 
-    preview="git diff --staged -- '{2..}' | $FG_VAR_GIT_PAGER"
-  fi
+  preview="git diff --staged -- '{2..}' | ${FG_VAR_GIT_PAGER}"
 
   header="$(fg_header \
     "git restore --staged -- <selected items>" \
@@ -213,13 +187,13 @@ fg_unstage() {
   # get parsable status; show preview and limit search to second block
   items="$(git status -s -uno |
     grep -E "^[MARCD][[:space:]]?" |
-    fg_fzf --nth 2..,.. --preview="$preview" --header="$header" |
-    sh -c "$sanatize")"
+    fg_fzf --nth 2..,.. --preview="${preview}" --header="${header}" |
+    sed "${FG_GIT_STATUS_PATTERN}")"
 
   # add files if any
-  if [[ -n "$items" ]]; then
+  if [[ -n "${items}" ]]; then
     #  remove selected files from staging area; add single quote to escape whitespaces in file names
-    echo "$items" | xargs -t -I %itemsToUnstage git restore --staged -- '%itemsToUnstage'
+    echo "${items}" | xargs -t -I %itemsToUnstage git restore --staged -- '%itemsToUnstage'
   else
     fg_echo "No files have been selected."
   fi
@@ -232,17 +206,10 @@ fg_unstage() {
 fg_restore() {
   fg_isGitRepo || return 1
 
-  local sanatize preview header items
-
-  sanatize="sed $FG_GIT_STATUS_PATTERN"
+  local preview header items
 
   # show diff in pager
-  if [[ "$FG_IS_PREVIEW_SED" = true ]]; then
-    preview="item=\$($sanatize <<< {})
-      git diff -- \"\$item\" | $FG_VAR_GIT_PAGER"
-  else
-    preview="git diff -- '{2..}' | $FG_VAR_GIT_PAGER"
-  fi
+  preview="git diff -- '{2..}' | ${FG_VAR_GIT_PAGER}"
 
   header="$(fg_header \
     "git restore -- <selected items>" \
@@ -251,13 +218,13 @@ fg_restore() {
   # get parsable status; show preview and limit search to second block
   items="$(git status -s -uno |
     grep -E "^([MARCD]|[[:space:]])[MARCD]" |
-    fg_fzf --nth 2..,.. --preview="$preview" --header="$header" |
-    sh -c "$sanatize")"
+    fg_fzf --nth 2..,.. --preview="${preview}" --header="${header}" |
+    sed "${FG_GIT_STATUS_PATTERN}")"
 
   # add files if any
-  if [[ -n "$items" ]]; then
+  if [[ -n "${items}" ]]; then
     #  restore selected files from working directory; add single quote to escape whitespaces in file names
-    echo "$items" | xargs -t -I %itemsToRestore git restore -- '%itemsToRestore'
+    echo "${items}" | xargs -t -I %itemsToRestore git restore -- '%itemsToRestore'
   else
     fg_echo "No files have been selected."
   fi
@@ -277,13 +244,13 @@ fg_log() {
     "git log --stat <selected commit>^..HEAD" \
     "Shows the log starting with the selected commit up until HEAD.")"
 
-  item="$(git log "$FG_GIT_LOG_PRETTY_FORMAT" |
-    fg_fzf_single --preview="$preview" --header="$header")"
+  item="$(git log "${FG_GIT_LOG_PRETTY_FORMAT}" |
+    fg_fzf_single --preview="${preview}" --header="${header}")"
 
   # show the commit log between the selected commit and the current head
-  if [[ -n "$item" ]]; then
+  if [[ -n "${item}" ]]; then
     # shellcheck disable=SC2068
-    echo "$item" | awk '{print $1}' | xargs -t -I %commitHash% git log ${@:-${FG_VAR_PREVIEW_GIT_LOG_OPTS[@]}} %commitHash%^..HEAD
+    echo "${item}" | awk '{print $1}' | xargs -t -I %commitHash% git log ${@:-${FG_VAR_PREVIEW_GIT_LOG_OPTS[@]}} %commitHash%^..HEAD
   else
     fg_echo "No commit has been selected."
   fi
@@ -304,11 +271,11 @@ fg_flog() {
     "Shows the log of the selected item.")"
 
   item="$(git ls-tree -r --name-only "$(git branch --show-current)" |
-    fg_fzf_single --preview="$preview" --header="$header")"
+    fg_fzf_single --preview="${preview}" --header="${header}")"
 
-  if [[ -n "$item" ]]; then
+  if [[ -n "${item}" ]]; then
     # shellcheck disable=SC2068
-    echo "$item" | xargs -t -I %item git log ${@:-${FG_VAR_PREVIEW_GIT_LOG_OPTS[@]}} -- %item
+    echo "${item}" | xargs -t -I %item git log --reverse ${@:-${FG_VAR_PREVIEW_GIT_LOG_OPTS[@]}} -- %item
   else
     fg_echo "No item has been selected."
   fi
@@ -320,23 +287,24 @@ fg_flog() {
 #
 fg_hash() {
   fg_isGitRepo || return 1
+  [[ "${#}" -eq 0 ]] && fg_echo "No subsequent command was given as an argument.\nE.g.: fuzzygit hash git show" && return 1
 
   local preview header items
 
-  # As for now no log opts can be passed externally, because hash uses arguments 
+  # As for now no log opts can be passed externally, because hash uses arguments
   # to control execution.
   preview="git log -1 ${FG_VAR_PREVIEW_GIT_LOG_OPTS[*]} {1}"
 
   header="$(fg_header \
-    "\"\$@\" <selected commit>" \
-    "Passes the selected commit to whatever was given as an argument.")"
+    "$* <selected commit>" \
+    "Passes the selected commit to to the given command.")"
 
-  items="$(git log "$FG_GIT_LOG_PRETTY_FORMAT" |
-    fg_fzf --preview="$preview" --header="$header")"
+  items="$(git log "${FG_GIT_LOG_PRETTY_FORMAT}" |
+    fg_fzf --preview="${preview}" --header="${header}")"
 
   # pass the selected commit hashes to the argument, e.g. "fg_hash git show"
-  if [[ -n "$items" ]]; then
-    echo "$items" | awk '{print $1}' | xargs -t -I %commitHash% "$@" %commitHash%
+  if [[ -n "${items}" ]]; then
+    echo "${items}" | awk '{print $1}' | xargs -t -I %commitHash% "${@}" %commitHash%
   else
     fg_echo "No commit has been selected."
   fi
@@ -347,11 +315,11 @@ fg_hash() {
 #
 fg_cherry() {
   fg_isGitRepo || return 1
-  [[ "$#" -lt 1 ]] && fg_echo "No branch to show log for has been given." && return 1
+  [[ "${#}" -lt 1 ]] && fg_echo "No branch to show log for has been given." && return 1
 
   local branch preview header items
 
-  branch=$1
+  branch=${1}
   shift
 
   preview="git log -1 ${*:-${FG_VAR_PREVIEW_GIT_LOG_OPTS[*]}} {1}"
@@ -360,11 +328,69 @@ fg_cherry() {
     "git cherry-pick -x <selected commits>" \
     "Cherry picks the selected commits.")"
 
-  items="$(git log "$branch" "$FG_GIT_LOG_PRETTY_FORMAT" |
-    fg_fzf --preview="$preview" --header="$header")"
+  items="$(git log "${branch}" "${FG_GIT_LOG_PRETTY_FORMAT}" |
+    fg_fzf --preview="${preview}" --header="${header}")"
 
-  if [[ -n "$items" ]]; then
-    echo "$items" | awk '{print $1}' | tac | xargs -t -I %commitHash% git cherry-pick -x %commitHash%
+  if [[ -n "${items}" ]]; then
+    echo "${items}" | awk '{print $1}' | tac | xargs -t -I %commitHash% git cherry-pick -x %commitHash%
+  else
+    fg_echo "No commit has been selected."
+  fi
+}
+
+#
+# Lists branches which either contain another branch or which do not contain a
+# certain commit.
+#
+# The command must be followed by an action: "contains", "no-merged"
+#
+fg_branch() {
+  fg_isGitRepo || return 1
+  [[ "${#}" -lt 1 ]] && fg_echo "No action given (contains | no-merged)." && return 1
+
+  local action preview header item rev
+
+  action="${1}"
+  shift
+
+  case "${action}" in
+    "contains")
+      # get log of branches
+      preview="git log '${FG_GIT_LOG_PRETTY_FORMAT}' {1}"
+
+      header="$(fg_header \
+        "git branch --contains <selected branch>" \
+        "Lists the branches which contain the head commit of the selected branch.")"
+
+      item="$(git branch "${@:-"-l"}" |
+        fg_fzf_single --preview="${preview}" --header="${header}" |
+        sed "${FG_GIT_SWITCH_PATTERN}")"
+
+      if [[ -n "${item}" ]]; then
+        rev=$(git rev-parse "${item}")
+      fi
+      ;;
+
+    "no-merged")
+      preview="git log -1 ${*:-${FG_VAR_PREVIEW_GIT_LOG_OPTS[*]}} {1}"
+
+      header="$(fg_header \
+        "git branch --no-merged <selected commit>" \
+        "Lists the branches which does not contain the selected commit.")"
+
+      item="$(git log "${FG_GIT_LOG_PRETTY_FORMAT}" |
+        fg_fzf_single --preview="${preview}" --header="${header}")"
+
+      if [[ -n "${item}" ]]; then
+        rev=$(echo "${item}" | awk '{print $1}')
+      fi
+      ;;
+  esac
+
+  echo "git branch --${action} ${rev}"
+
+  if [[ -n "${rev}" ]]; then
+    git branch --"${action}" "${rev}"
   else
     fg_echo "No commit has been selected."
   fi
@@ -374,7 +400,7 @@ fg_cherry() {
 # Command Line Completions
 # -----------------------------------------------------------------------------
 
-FG_COMPLETION_WORDS=("add" "cherry" "flog" "hash" "log" "restore" "switch" "unstage")
+FG_COMPLETION_WORDS=("add" "branch" "cherry" "flog" "hash" "log" "restore" "switch" "unstage")
 
 _fg_completions_bash() {
   local IFS=$' \t\n'
@@ -384,10 +410,10 @@ _fg_completions_bash() {
   fi
 
   # shellcheck disable=SC2207
-  COMPREPLY=( $(compgen -o default -W "${FG_COMPLETION_WORDS[*]}" -- "${COMP_WORDS[1]}") )
+  COMPREPLY=($(compgen -o default -W "${FG_COMPLETION_WORDS[*]}" -- "${COMP_WORDS[1]}"))
 }
 
-[[ -n "$BASH" ]] && complete -F _fg_completions_bash fuzzygit
+[[ -n "${BASH}" ]] && complete -F _fg_completions_bash fuzzygit
 
 _fg_completions_zsh() {
   if [[ "${CURRENT}" -ne "2" ]]; then
@@ -397,7 +423,7 @@ _fg_completions_zsh() {
   compadd -a FG_COMPLETION_WORDS
 }
 
-[[ -n "$ZSH_NAME" ]] && compdef _fg_completions_zsh fuzzygit
+[[ -n "${ZSH_NAME}" ]] && compdef _fg_completions_zsh fuzzygit
 
 #
 # Prints a help summary.
@@ -408,73 +434,74 @@ fg_help() {
   local fuzzygitUsage="fuzzygit <function> [<args..>]
     Invokes one of the functions, if an argument is passed.
     E.g. 'fuzzygit add' or 'fuzzygit hash git show'"
-  printf "  %s\n\n" "$fuzzygitUsage"
+  printf "  %s\n\n" "${fuzzygitUsage}"
 
   printf "\n%s\n\n" "Functions:"
 
   local addUsage="add
     Shows a list of files which can be added to the staging area."
-  printf "  %s\n\n" "$addUsage"
+  printf "  %s\n\n" "${addUsage}"
+
+  local branchUsage="branch (contains | no-merged)
+    Lists branches which either contain another branch or which do not contain a
+    certain commit. The desired action is passed as an argument."
+  printf "  %s\n\n" "${branchUsage}"
 
   local cherryUsage="cherry <branch name> [<git log option>...]
     Cherry picks the selected commits from the given branch and the HEAD. The
     first parameter _must_ be a branch name."
-  printf "  %s\n\n" "$cherryUsage"
+  printf "  %s\n\n" "${cherryUsage}"
 
   local flogUsage="flog [<git log option>...]
     Lists all items of the git tree and shows the log of the selected item."
-  printf "  %s\n\n" "$flogUsage"
+  printf "  %s\n\n" "${flogUsage}"
 
   local hashUsage="hash <command for hash>
     Shows the commit history and passes the hashes of the selected entries to
     the command which was given as an argument. E.g. to get detailed information
     about a commit use 'fuzzygit hash git show'."
-  printf "  %s\n\n" "$hashUsage"
+  printf "  %s\n\n" "${hashUsage}"
 
   local logUsage="log [<git log option>...]
     Shows the commit history and shows the log between the selected one and the
     HEAD."
-  printf "  %s\n\n" "$logUsage"
+  printf "  %s\n\n" "${logUsage}"
 
   local unstageUsage="unstage
     Shows the list of files which are in the staging area (aka added files) and
     puts them back into the working area."
-  printf "  %s\n\n" "$unstageUsage"
+  printf "  %s\n\n" "${unstageUsage}"
 
   local restoreUsage="restore
     Shows the list of files in the working area (aka modified files) and
     restores the version from the local repository."
-  printf "  %s\n\n" "$restoreUsage"
+  printf "  %s\n\n" "${restoreUsage}"
 
   local switchUsage="switch [-r]
     Shows a list of branches and switches to the selected one.
     By default only local branches are shown. To get a list of remote branches,
     pass '-r' as an argument."
-  printf "  %s\n\n" "$switchUsage"
+  printf "  %s\n\n" "${switchUsage}"
 
   printf "\n%s\n\n" "Environment Variables:
     (Config file '\${XDG_CONFIG_HOME}/fuzzygit/config' will be respected.)"
 
   local envVarEcho="FUZZYGIT_IS_ECHO_STATUS=(true|false) - [default: true]
     Toggle fuzzygit status infos."
-  printf "  %s\n\n" "$envVarEcho"
+  printf "  %s\n\n" "${envVarEcho}"
 
   local envVarPreviewGitLog="FUZZYGIT_PREVIEW_GIT_LOG_OPTS - [default: --stat]
     Set the options which are passed to 'git log' when it is used in a preview
     environment."
-  printf "  %s\n\n" "$envVarPreviewGitLog"
-
-  local envVarPreviewSed="FUZZYGIT_IS_PREVIEW_SED=(true|false) - [default: true]
-    (experimental) Use fzf patterns in preview instead of sed command.
-    Set to 'true' if \$SHELL, which is used in preview by fzf, cannot handle
-    the preview command. _Note:_ Some previews might not work as expected."
-  printf "  %s\n\n" "$envVarPreviewSed"
+  printf "  %s\n\n" "${envVarPreviewGitLog}"
 
   local envVarLogPretty="FUZZYGIT_GIT_LOG_PRETTY_FORMAT - 
     [default: --pretty=format:%h - (%ar) %C(bold)%s%C(reset) - %aN%d]
     Set the pretty format to use when 'git log' is used in list of available
-    items."
-  printf "  %s\n\n" "$envVarLogPretty"
+    items.
+    Note: The pretty format always starts with '%h - '. Your config will be
+    appended."
+  printf "  %s\n\n" "${envVarLogPretty}"
 
   printf "%s\n\n" "For further information see README.md or visit:
     <https://github.com/DennisBayer/fuzzygit>"
