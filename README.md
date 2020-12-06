@@ -190,6 +190,7 @@ Some basic tools are required as well:
 
 | Version        | Date       | Notes |
 | ---            | ---        | --- |
+| `0.2.0`        | 2020-12-06 | Feature release ([Release Notes][302]) |
 | `0.2.0-beta.1` | 2020-11-22 | Feature release ([Release Notes][301]) |
 | `0.1.0`        | 2020-09-18 | Feature release ([Release Notes][300]) |
 | `0.1.0-beta.1` | 2020-09-01 | Initial release with a basic feature set. |
@@ -242,3 +243,4 @@ issue please file a [new issue][1]. See [CONTRIBUTING](docs/CONTRIBUTING.md).
 [105]: https://github.com/bigH/git-fuzzy
 [300]: https://github.com/DennisBayer/fuzzygit/releases/tag/0.1.0
 [301]: https://github.com/DennisBayer/fuzzygit/releases/tag/0.2.0.beta.1
+[302]: https://github.com/DennisBayer/fuzzygit/releases/tag/0.2.0
